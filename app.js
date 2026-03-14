@@ -7,14 +7,11 @@ const session = require('express-session');
 const fs = require('fs');
 
 const app = express();
-const PORT = 3000;
 
-// Настройка middleware
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Настройка сессий
 app.use(session({
     secret: 'your-secret-key-change-this',
     resave: false,
@@ -22,11 +19,9 @@ app.use(session({
     cookie: { secure: false }
 }));
 
-// Настройка шаблонизатора
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
-// Подключение к БД
 const db = new sqlite3.Database('./database/finance.db', (err) => {
     if (err) {
         console.error('Ошибка подключения к БД:', err);
@@ -36,7 +31,6 @@ const db = new sqlite3.Database('./database/finance.db', (err) => {
     }
 });
 
-// Загрузка переводов
 let translations = {};
 try {
     fs.readdirSync('./locales').forEach(file => {
@@ -48,7 +42,6 @@ try {
     console.log('Папка locales не найдена, создайте её');
 }
 
-// Middleware для языка
 app.use((req, res, next) => {
     const lang = req.query.lang || req.session.lang || 'ru';
     req.session.lang = lang;
@@ -365,9 +358,7 @@ app.put('/api/transaction/:id', isAuthenticated, (req, res) => {
         }
     );
 });
-// Запуск сервера - ЭТА ВЕРСИЯ ДЛЯ RENDER
-const PORT = process.env.PORT || 3000; // Render сам подставит порт
-app.listen(PORT, '0.0.0.0', () => {    // Слушаем все интерфейсы
+const PORT = process.env.PORT || 3000; 
+app.listen(PORT, '0.0.0.0', () => {    
     console.log(`Сервер запущен на порту ${PORT}`);
-});
 });
