@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="<%= lang %>">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= t('app_name') %></title>
+    <style>
+        /* Все стили остаются без изменений (как в предыдущей версии) */
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            background-color: #fff;
+            padding: 15px 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .lang-switcher {
+            display: flex;
+            gap: 5px;
+        }
+        .lang-switcher a {
+            text-decoration: none;
+            padding: 5px 10px;
+            border-radius: 4px;
+            transition: all 0.3s;
+        }
+        .lang-switcher a.active {
+            background-color: #3498db;
+            color: white;
+        }
+        .lang-switcher a:not(.active) {
+            background-color: #f0f0f0;
+            color: #333;
+        }
+        .user-info {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+        .balance {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .balance h2 {
+            margin: 0;
+            color: #666;
+            font-size: 18px;
+        }
+        .balance .amount {
+            font-size: 36px;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+        .balance .amount.positive {
+            color: #2ecc71;
+        }
+        .balance .amount.negative {
+            color: #e74c3c;
+        }
+        .filters {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .filters form {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #666;
+        }
+        input, select, textarea {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #3498db;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #2980b9;
+        }
+        .reset-btn {
+            background-color: #95a5a6;
+            display: inline-block;
+            padding: 10px 20px;
+            border-radius: 4px;
+            text-decoration: none;
+            text-align: center;
+            color: white;
+        }
+        .add-form {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        table {
+            width: 100%;
+            background-color: #fff;
+            border-collapse: collapse;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        th {
+            background-color: #3498db;
+            color: white;
+            padding: 12px;
+            text-align: left;
+        }
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #eee;
+        }
+        .income {
+            color: #2ecc71;
+            font-weight: bold;
+        }
+        .expense {
+            color: #e74c3c;
+            font-weight: bold;
+        }
+        .delete-btn {
+            color: #e74c3c;
+            text-decoration: none;
+            padding: 5px 10px;
+            border: 1px solid #e74c3c;
+            border-radius: 4px;
+            font-size: 12px;
+            transition: all 0.3s;
+        }
+        .delete-btn:hover {
+            background-color: #e74c3c;
+            color: white;
+        }
+        .edit-btn {
+            color: #f39c12;
+            text-decoration: none;
+            padding: 5px 10px;
+            border: 1px solid #f39c12;
+            border-radius: 4px;
+            font-size: 12px;
+            margin-right: 5px;
+            transition: all 0.3s;
+            background: none;
+            cursor: pointer;
+        }
+        .edit-btn:hover {
+            background-color: #f39c12;
+            color: white;
+        }
+        .chart-container {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 30px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        /* Стили для модального окна */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+        }
+        .modal-content {
+            background-color: white;
+            margin: 50px auto;
+            padding: 20px;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+        .close {
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .close:hover {
+            color: #e74c3c;
+        }
+    </style>
+</head>
+<body>
+    <%
+        if (typeof filters === 'undefined') {
+            filters = {};
+        }
+    %>
+    
+    <div class="header">
+        <h1><%= t('app_name') %></h1>
+        
+        <div style="display: flex; gap: 15px; align-items: center;">
+            <div class="lang-switcher">
+                <a href="?lang=ru" class="<%= lang === 'ru' ? 'active' : '' %>">Рус</a>
+                <a href="?lang=kk" class="<%= lang === 'kk' ? 'active' : '' %>">Қаз</a>
+                <a href="?lang=en" class="<%= lang === 'en' ? 'active' : '' %>">Eng</a>
+            </div>
+            
+            <div class="user-info">
+                <span>👤 <%= user %></span>
+                <a href="/logout" style="background-color: #e74c3c; color: white; padding: 8px 15px; border-radius: 4px; text-decoration: none;"><%= t('logout') %></a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="balance">
+        <h2><%= t('balance') %></h2>
+        <div class="amount <%= balance >= 0 ? 'positive' : 'negative' %>">
+            <%= balance.toLocaleString('ru-RU') %> ₸
+        </div>
+    </div>
+    
+    <div class="filters">
+        <h3><%= t('filters') %></h3>
+        <form action="/" method="GET">
+            <div class="form-group">
+                <label for="date_from"><%= t('date_from') %></label>
+                <input type="date" id="date_from" name="date_from" value="<%= filters.date_from || '' %>">
+            </div>
+            
+            <div class="form-group">
+                <label for="date_to"><%= t('date_to') %></label>
+                <input type="date" id="date_to" name="date_to" value="<%= filters.date_to || '' %>">
+            </div>
+            
+            <div class="form-group">
+                <label for="type"><%= t('type') %></label>
+                <select id="type" name="type">
+                    <option value="all" <%= filters.type === 'all' ? 'selected' : '' %>><%= t('all') %></option>
+                    <option value="income" <%= filters.type === 'income' ? 'selected' : '' %>><%= t('only_income') %></option>
+                    <option value="expense" <%= filters.type === 'expense' ? 'selected' : '' %>><%= t('only_expense') %></option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="category"><%= t('category') %></label>
+                <input type="text" id="category" name="category" placeholder="<%= t('category') %>" value="<%= filters.category || '' %>">
+            </div>
+            
+            <div style="display: flex; gap: 10px; align-items: flex-end;">
+                <button type="submit"><%= t('apply') %></button>
+                <a href="/" class="reset-btn"><%= t('reset') %></a>
+            </div>
+        </form>
+    </div>
+    
+    <div class="add-form">
+        <h3><%= t('add_operation') %></h3>
+        <form action="/add" method="POST">
+            <div class="form-group">
+                <label for="type"><%= t('type') %></label>
+                <select id="type" name="type" required>
+                    <option value="income"><%= t('income') %></option>
+                    <option value="expense"><%= t('expense') %></option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="amount"><%= t('amount') %></label>
+                <input type="number" id="amount" name="amount" step="0.01" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="date"><%= t('date') %></label>
+                <input type="date" id="date" name="date" value="<%= new Date().toISOString().split('T')[0] %>" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="category-select"><%= t('category') %></label>
+                
+                <select id="category-select" name="category" required style="width: 100%; padding: 8px; margin-bottom: 10px;">
+                    <option value=""><%= t('choose_category') %></option>
+                    <optgroup label="<%= t('income') %>" id="income-categories"></optgroup>
+                    <optgroup label="<%= t('expense') %>" id="expense-categories"></optgroup>
+                </select>
+                
+                <div style="display: flex; gap: 10px; align-items: center;">
+                    <input type="text" id="new-category-name" placeholder="<%= t('new_category') %>" style="flex: 1; padding: 8px;">
+                    <select id="new-category-type" style="width: 100px; padding: 8px;">
+                        <option value="income"><%= t('income') %></option>
+                        <option value="expense"><%= t('expense') %></option>
+                    </select>
+                    <button type="button" id="add-category-btn" style="background-color: #2ecc71; color: white; padding: 8px 15px; border: none; border-radius: 4px; cursor: pointer;">
+                        <%= t('add_category') %>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="description"><%= t('description') %></label>
+                <textarea id="description" name="description" rows="2"></textarea>
+            </div>
+            
+            <button type="submit"><%= t('add_button') %></button>
+        </form>
+    </div>
+    
+    <h3><%= t('history') %></h3>
+    <table>
+        <thead>
+            <tr>
+                <th><%= t('date') %></th>
+                <th><%= t('type') %></th>
+                <th><%= t('category') %></th>
+                <th><%= t('description') %></th>
+                <th><%= t('amount') %></th>
+                <th><%= t('actions') %></th>
+            </tr>
+        </thead>
+        <tbody>
+            <% transactions.forEach(transaction => { %>
+                <tr>
+                    <td><%= transaction.date %></td>
+                    <td>
+                        <%= transaction.type === 'income' ? '💰 ' + t('income') : '💸 ' + t('expense') %>
+                    </td>
+                    <td><%= transaction.category %></td>
+                    <td><%= transaction.description || '-' %></td>
+                    <td class="<%= transaction.type %>">
+                        <%= transaction.type === 'income' ? '+' : '-' %> 
+                        <%= transaction.amount.toLocaleString('ru-RU') %> ₸
+                    </td>
+                    <td>
+                        <button class="edit-btn" onclick="editTransaction(<%= transaction.id %>)">✏️ <%= t('edit') %></button>
+                        <a href="/delete/<%= transaction.id %>" class="delete-btn" onclick="return confirm('<%= t('delete') %>?')"><%= t('delete') %></a>
+                    </td>
+                </tr>
+            <% }) %>
+        </tbody>
+    </table>
+    
+    <div class="chart-container">
+        <h3><%= t('category') %></h3>
+        <canvas id="financeChart" style="width: 100%; height: 400px;"></canvas>
+    </div>
+    
+    <!-- Модальное окно редактирования -->
+    <div id="editModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeEditModal()">&times;</span>
+            <h3><%= t('edit') %></h3>
+            <form id="editForm">
+                <input type="hidden" id="edit-id">
+                <div class="form-group">
+                    <label for="edit-type"><%= t('type') %></label>
+                    <select id="edit-type" name="type" required>
+                        <option value="income"><%= t('income') %></option>
+                        <option value="expense"><%= t('expense') %></option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="edit-amount"><%= t('amount') %></label>
+                    <input type="number" id="edit-amount" name="amount" step="0.01" required>
+                </div>
+                <div class="form-group">
+                    <label for="edit-date"><%= t('date') %></label>
+                    <input type="date" id="edit-date" name="date" required>
+                </div>
+                <div class="form-group">
+                    <label for="edit-category"><%= t('category') %></label>
+                    <input type="text" id="edit-category" name="category" required>
+                </div>
+                <div class="form-group">
+                    <label for="edit-description"><%= t('description') %></label>
+                    <textarea id="edit-description" name="description" rows="2"></textarea>
+                </div>
+                <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                    <button type="button" onclick="closeEditModal()" style="background-color: #95a5a6;"><%= t('cancel') %></button>
+                    <button type="submit" style="background-color: #3498db;"><%= t('save') %></button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // Функции редактирования
+        function editTransaction(id) {
+            fetch(`/api/transaction/${id}`)
+                .then(response => response.json())
+                .then(transaction => {
+                    document.getElementById('edit-id').value = transaction.id;
+                    document.getElementById('edit-type').value = transaction.type;
+                    document.getElementById('edit-amount').value = transaction.amount;
+                    document.getElementById('edit-date').value = transaction.date;
+                    document.getElementById('edit-category').value = transaction.category;
+                    document.getElementById('edit-description').value = transaction.description || '';
+                    document.getElementById('editModal').style.display = 'block';
+                })
+                .catch(err => console.error('Ошибка загрузки транзакции:', err));
+        }
+
+        function closeEditModal() {
+            document.getElementById('editModal').style.display = 'none';
+        }
+
+        document.getElementById('editForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const id = document.getElementById('edit-id').value;
+            const data = {
+                type: document.getElementById('edit-type').value,
+                amount: document.getElementById('edit-amount').value,
+                date: document.getElementById('edit-date').value,
+                category: document.getElementById('edit-category').value,
+                description: document.getElementById('edit-description').value
+            };
+            fetch(`/api/transaction/${id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            })
+            .then(response => {
+                if (response.ok) {
+                    location.reload();
+                } else {
+                    alert('Ошибка при сохранении');
+                }
+            })
+            .catch(err => console.error('Ошибка:', err));
+        });
+
+        // Закрыть модалку при клике вне её
+        window.onclick = function(event) {
+            const modal = document.getElementById('editModal');
+            if (event.target === modal) {
+                closeEditModal();
+            }
+        };
+
+        // Код для категорий (оставлен без изменений)
+        fetch('/api/categories')
+            .then(response => response.json())
+            .then(categories => {
+                const incomeGroup = document.getElementById('income-categories');
+                const expenseGroup = document.getElementById('expense-categories');
+                const mainSelect = document.getElementById('category-select');
+                
+                while (mainSelect.options.length > 1) {
+                    mainSelect.remove(1);
+                }
+                
+                categories.forEach(cat => {
+                    const option = document.createElement('option');
+                    option.value = cat.name;
+                    option.textContent = cat.name;
+                    option.dataset.type = cat.type;
+                    mainSelect.appendChild(option);
+                    
+                    const optOption = document.createElement('option');
+                    optOption.value = cat.name;
+                    optOption.textContent = cat.name;
+                    if (cat.type === 'income') {
+                        incomeGroup.appendChild(optOption);
+                    } else {
+                        expenseGroup.appendChild(optOption);
+                    }
+                });
+            });
+        
+        document.getElementById('add-category-btn').addEventListener('click', function() {
+            const name = document.getElementById('new-category-name').value;
+            const type = document.getElementById('new-category-type').value;
+            if (!name) {
+                alert('Введите название категории');
+                return;
+            }
+            fetch('/api/categories', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name, type })
+            })
+            .then(response => response.json())
+            .then(cat => {
+                const mainSelect = document.getElementById('category-select');
+                const option = document.createElement('option');
+                option.value = cat.name;
+                option.textContent = cat.name;
+                option.dataset.type = cat.type;
+                mainSelect.appendChild(option);
+                document.getElementById('new-category-name').value = '';
+                alert('Категория добавлена!');
+            })
+            .catch(err => {
+                console.error('Ошибка:', err);
+                alert('Ошибка при добавлении категории');
+            });
+        });
+        
+        document.querySelector('.add-form select[name="type"]').addEventListener('change', function() {
+            const type = this.value;
+            const options = document.getElementById('category-select').options;
+            for (let i = 1; i < options.length; i++) {
+                const option = options[i];
+                const catType = option.dataset.type;
+                option.style.display = (catType === type) ? '' : 'none';
+            }
+        });
+        
+        // График
+        fetch('/api/chart-data')
+            .then(response => response.json())
+            .then(data => {
+                if (data.length === 0) return;
+                const categories = data.map(item => item.category);
+                const incomes = data.map(item => item.total_income || 0);
+                const expenses = data.map(item => item.total_expense || 0);
+                new Chart(document.getElementById('financeChart'), {
+                    type: 'bar',
+                    data: {
+                        labels: categories,
+                        datasets: [
+                            {
+                                label: '<%= t('income') %>',
+                                data: incomes,
+                                backgroundColor: 'rgba(46, 204, 113, 0.5)',
+                                borderColor: '#2ecc71',
+                                borderWidth: 1
+                            },
+                            {
+                                label: '<%= t('expense') %>',
+                                data: expenses,
+                                backgroundColor: 'rgba(231, 76, 60, 0.5)',
+                                borderColor: '#e74c3c',
+                                borderWidth: 1
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        scales: {
+                            y: {
+                                beginAtZero: true
+                            }
+                        }
+                    }
+                });
+            })
+            .catch(error => console.error('Ошибка графика:', error));
+    </script>
+    <script>
+    // Загрузка категорий
+    fetch('/api/categories')
+        .then(response => response.json())
+        .then(categories => {
+            console.log('Загруженные категории:', categories);
+            
+            const incomeGroup = document.getElementById('income-categories');
+            const expenseGroup = document.getElementById('expense-categories');
+            const mainSelect = document.getElementById('category-select');
+            
+            if (!mainSelect) {
+                console.error('Элемент category-select не найден!');
+                return;
+            }
+            
+            // Очищаем старые опции (кроме первой пустой)
+            while (mainSelect.options.length > 1) {
+                mainSelect.remove(1);
+            }
+            
+            categories.forEach(cat => {
+                // Добавляем в основной select
+                const option = document.createElement('option');
+                option.value = cat.name;
+                option.textContent = cat.name;
+                option.dataset.type = cat.type;
+                mainSelect.appendChild(option);
+                
+                // Добавляем в optgroup
+                const optOption = document.createElement('option');
+                optOption.value = cat.name;
+                optOption.textContent = cat.name;
+                
+                if (cat.type === 'income') {
+                    incomeGroup.appendChild(optOption);
+                } else {
+                    expenseGroup.appendChild(optOption);
+                }
+            });
+        })
+        .catch(err => console.error('Ошибка загрузки категорий:', err));
+</script>
+</body>
+</html>

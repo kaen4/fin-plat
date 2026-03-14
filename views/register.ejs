@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="<%= lang %>">
+<head>
+    <meta charset="UTF-8">
+    <title><%= t('register') %> | <%= t('app_name') %></title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .register-box {
+            background-color: #fff;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            width: 350px;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+        h1 {
+            margin: 0;
+            font-size: 24px;
+            color: #333;
+        }
+        .lang-switcher {
+            display: flex;
+            gap: 5px;
+        }
+        .lang-switcher a {
+            text-decoration: none;
+            padding: 5px 10px;
+            border-radius: 4px;
+            transition: all 0.3s;
+        }
+        .lang-switcher a.active {
+            background-color: #3498db;
+            color: white;
+        }
+        .lang-switcher a:not(.active) {
+            background-color: #f0f0f0;
+            color: #333;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #666;
+        }
+        input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        button {
+            width: 100%;
+            padding: 12px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #2980b9;
+        }
+        .error {
+            color: #e74c3c;
+            text-align: center;
+            margin-bottom: 20px;
+            padding: 10px;
+            background-color: #fdeaea;
+            border-radius: 4px;
+        }
+        .link {
+            text-align: center;
+            margin-top: 20px;
+        }
+        .link a {
+            color: #3498db;
+            text-decoration: none;
+        }
+        .link a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="register-box">
+        <div class="header">
+            <h1><%= t('app_name') %></h1>
+            <div class="lang-switcher">
+                <a href="?lang=ru" class="<%= lang === 'ru' ? 'active' : '' %>">Рус</a>
+                <a href="?lang=kk" class="<%= lang === 'kk' ? 'active' : '' %>">Қаз</a>
+                <a href="?lang=en" class="<%= lang === 'en' ? 'active' : '' %>">Eng</a>
+            </div>
+        </div>
+        
+        <h2 style="text-align: center; margin-bottom: 30px;"><%= t('register') %></h2>
+        
+        <% if (error) { %>
+            <div class="error"><%= error %></div>
+        <% } %>
+        
+        <form action="/register" method="POST">
+            <div class="form-group">
+                <label for="username"><%= t('username') %></label>
+                <input type="text" id="username" name="username" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="password"><%= t('password') %></label>
+                <input type="password" id="password" name="password" required>
+            </div>
+            
+            <button type="submit"><%= t('register') %></button>
+        </form>
+        
+        <div class="link">
+            <%= t('have_account') %> <a href="/login"><%= t('login') %></a>
+        </div>
+    </div>
+</body>
+</html>
