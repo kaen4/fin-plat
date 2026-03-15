@@ -330,7 +330,7 @@
             const monthlyIncome = <%- JSON.stringify(safeMonthlyData.map(item => Number(item.income || 0))) %>;
             const monthlyExpense = <%- JSON.stringify(safeMonthlyData.map(item => Number(item.expense || 0))) %>;
 
-            const categoryLabels = <%- JSON.stringify(safeCategoryData.map(item => item.category)) %>;
+            const categoryLabels = <%- JSON.stringify(safeCategoryData.map(item => translateCategory(item.category))) %>;
             const categoryIncome = <%- JSON.stringify(safeCategoryData.map(item => Number(item.total_income || 0))) %>;
             const categoryExpense = <%- JSON.stringify(safeCategoryData.map(item => Number(item.total_expense || 0))) %>;
 
