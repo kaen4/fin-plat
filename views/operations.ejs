@@ -569,7 +569,7 @@
                                                 <%= transaction.type === 'income' ? '💰 ' + t('income') : '💸 ' + t('expense') %>
                                             </span>
                                         </td>
-                                        <td><%= transaction.category %></td>
+                                       <td><%= translateCategory(transaction.category) %></td>
                                         <td><%= transaction.description || '-' %></td>
                                         <td class="<%= transaction.type %>">
                                             <%= transaction.type === 'income' ? '+' : '-' %>
