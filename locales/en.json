@@ -34,4 +34,18 @@
     "edit": "Edit",
     "save": "Save",
     "cancel": "Cancel"
+    "dashboard": "Dashboard",
+    "operations": "Operations",
+    "categories": "Categories",
+    "analytics": "Analytics",
+    "total_balance": "Total Balance",
+    "recent_operations": "Recent Operations",
+    "view_all": "View All",
+    "no_operations": "No operations",
+    "add_first": "Add your first operation"
+    "total_income": "Total Income",
+    "total_expense": "Total Expenses",
+    "savings": "Savings",
+    "savings_rate": "Savings Rate",
+    "category_name": "Category Name"
 }

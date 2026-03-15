@@ -8,10 +8,12 @@ const fs = require('fs');
 
 const app = express();
 
+// Настройка middleware
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
+// Настройка сессий
 app.use(session({
     secret: 'your-secret-key-change-this',
     resave: false,
@@ -19,18 +21,26 @@ app.use(session({
     cookie: { secure: false }
 }));
 
+// Настройка шаблонизатора
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
-const db = new sqlite3.Database('./database/finance.db', (err) => {
+// Определяем путь к БД в зависимости от окружения
+const dbPath = process.env.NODE_ENV === 'production' 
+  ? '/data/finance.db'      // на Render диске
+  : './database/finance.db'; // локально
+
+// Подключение к БД
+const db = new sqlite3.Database(dbPath, (err) => {
     if (err) {
         console.error('Ошибка подключения к БД:', err);
     } else {
-        console.log('Подключено к базе данных SQLite');
+        console.log('Подключено к базе данных SQLite по пути:', dbPath);
         createTables();
     }
 });
 
+// Загрузка переводов
 let translations = {};
 try {
     fs.readdirSync('./locales').forEach(file => {
@@ -42,6 +52,7 @@ try {
     console.log('Папка locales не найдена, создайте её');
 }
 
+// Middleware для языка
 app.use((req, res, next) => {
     const lang = req.query.lang || req.session.lang || 'ru';
     req.session.lang = lang;
@@ -100,6 +111,52 @@ function createTables() {
                     });
                 } else {
                     checkAndInsertTestData();
+                }
+            });
+        }
+    });
+
+    // Создаем таблицу категорий, если её нет
+    db.run(`
+        CREATE TABLE IF NOT EXISTS categories (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT NOT NULL,
+            type TEXT NOT NULL,
+            user_id INTEGER,
+            is_default INTEGER DEFAULT 0,
+            FOREIGN KEY (user_id) REFERENCES users(id)
+        )
+    `, (err) => {
+        if (err) console.error('Ошибка создания categories:', err);
+        else {
+            console.log('Таблица categories готова');
+            
+            // Добавляем категории по умолчанию, если таблица пустая
+            db.get("SELECT COUNT(*) as count FROM categories", (err, row) => {
+                if (err) return;
+                if (row.count === 0) {
+                    const defaultCategories = [
+                        ['Зарплата', 'income', null, 1],
+                        ['Фриланс', 'income', null, 1],
+                        ['Подарки', 'income', null, 1],
+                        ['Инвестиции', 'income', null, 1],
+                        ['Другое (доход)', 'income', null, 1],
+                        ['Продукты', 'expense', null, 1],
+                        ['Транспорт', 'expense', null, 1],
+                        ['Рестораны', 'expense', null, 1],
+                        ['Жильё', 'expense', null, 1],
+                        ['Развлечения', 'expense', null, 1],
+                        ['Здоровье', 'expense', null, 1],
+                        ['Одежда', 'expense', null, 1],
+                        ['Связь', 'expense', null, 1],
+                        ['Образование', 'expense', null, 1],
+                        ['Другое (расход)', 'expense', null, 1]
+                    ];
+                    
+                    const stmt = db.prepare('INSERT INTO categories (name, type, user_id, is_default) VALUES (?, ?, ?, ?)');
+                    defaultCategories.forEach(cat => stmt.run(cat));
+                    stmt.finalize();
+                    console.log('Категории по умолчанию добавлены');
                 }
             });
         }
@@ -190,12 +247,44 @@ app.get('/logout', (req, res) => {
     res.redirect('/login');
 });
 
-// ========== ОСНОВНЫЕ МАРШРУТЫ ==========
+// ========== ГЛАВНАЯ СТРАНИЦА (ДАШБОРД) ==========
 
 app.get('/', isAuthenticated, (req, res) => {
+    // Получаем последние 5 операций для дашборда
+    db.all(
+        "SELECT * FROM transactions WHERE user_id = ? ORDER BY date DESC LIMIT 5", 
+        [req.session.userId], 
+        (err, recentTransactions) => {
+            if (err) {
+                return res.send('Ошибка загрузки данных');
+            }
+            
+            // Получаем общий баланс
+            db.get(
+                "SELECT SUM(CASE WHEN type = 'income' THEN amount ELSE -amount END) as balance FROM transactions WHERE user_id = ?",
+                [req.session.userId],
+                (err, balanceRow) => {
+                    const balance = balanceRow?.balance || 0;
+                    
+                    res.render('index', { 
+                        recentTransactions: recentTransactions || [],
+                        balance: balance,
+                        user: req.session.username,
+                        currentPage: 'dashboard'
+                    });
+                }
+            );
+        }
+    );
+});
+
+// ========== СТРАНИЦА ОПЕРАЦИЙ ==========
+
+app.get('/operations', isAuthenticated, (req, res) => {
     let query = "SELECT * FROM transactions WHERE user_id = ?";
     let params = [req.session.userId];
     
+    // Применяем фильтры, если они есть
     if (req.query.date_from) {
         query += " AND date >= ?";
         params.push(req.query.date_from);
@@ -223,24 +312,26 @@ app.get('/', isAuthenticated, (req, res) => {
             return res.send('Ошибка загрузки данных');
         }
         
-        let balance = 0;
-        rows.forEach(t => {
-            balance += t.type === 'income' ? t.amount : -t.amount;
-        });
-        
-        res.render('index', { 
-            transactions: rows, 
-            balance: balance,
-            filters: req.query || {},
-            user: req.session.username
-        });
+        // Получаем все категории для выпадающего списка
+        db.all("SELECT * FROM categories WHERE user_id = ? OR is_default = 1 ORDER BY type, name", 
+            [req.session.userId], 
+            (err, categories) => {
+                res.render('operations', { 
+                    transactions: rows || [],
+                    categories: categories || [],
+                    filters: req.query || {},
+                    user: req.session.username,
+                    currentPage: 'operations'
+                });
+            }
+        );
     });
 });
 
+// Добавление операции
 app.post('/add', isAuthenticated, (req, res) => {
     const { type, amount, category, description, date } = req.body;
     
-    // Если дата не указана, используем текущую
     const operationDate = date || new Date().toISOString().split('T')[0];
     
     db.run(
@@ -251,54 +342,39 @@ app.post('/add', isAuthenticated, (req, res) => {
                 console.error('Ошибка добавления:', err);
                 res.status(500).send('Ошибка при добавлении');
             } else {
-                res.redirect('/');
+                res.redirect('/operations');
             }
         }
     );
 });
 
+// Удаление операции
 app.get('/delete/:id', isAuthenticated, (req, res) => {
     db.run("DELETE FROM transactions WHERE id = ? AND user_id = ?", 
         [req.params.id, req.session.userId], 
         (err) => {
             if (err) console.error(err);
-            res.redirect('/');
+            res.redirect('/operations');
         }
     );
 });
 
-app.get('/api/chart-data', isAuthenticated, (req, res) => {
-    db.all(`
-        SELECT 
-            category,
-            SUM(CASE WHEN type = 'income' THEN amount ELSE 0 END) as total_income,
-            SUM(CASE WHEN type = 'expense' THEN amount ELSE 0 END) as total_expense
-        FROM transactions
-        WHERE user_id = ?
-        GROUP BY category
-    `, [req.session.userId], (err, rows) => {
-        res.json(rows || []);
-    });
-});
-// API для получения категорий пользователя
-app.get('/api/categories', isAuthenticated, (req, res) => {
-    const query = `
-        SELECT * FROM categories 
-        WHERE user_id = ? OR (user_id IS NULL AND is_default = 1)
-        ORDER BY type, name
-    `;
-    
-    db.all(query, [req.session.userId], (err, rows) => {
-        if (err) {
-            console.error('Ошибка получения категорий:', err);
-            res.json([]);
-        } else {
-            res.json(rows);
+// ========== СТРАНИЦА КАТЕГОРИЙ ==========
+
+app.get('/categories', isAuthenticated, (req, res) => {
+    db.all("SELECT * FROM categories WHERE user_id = ? OR is_default = 1 ORDER BY type, name", 
+        [req.session.userId], 
+        (err, rows) => {
+            res.render('categories', { 
+                categories: rows || [],
+                user: req.session.username,
+                currentPage: 'categories'
+            });
         }
-    });
+    );
 });
 
-// Добавление новой категории
+// Добавление категории
 app.post('/api/categories', isAuthenticated, (req, res) => {
     const { name, type } = req.body;
     
@@ -319,7 +395,81 @@ app.post('/api/categories', isAuthenticated, (req, res) => {
         }
     );
 });
-// Получить одну транзакцию для редактирования
+
+// Удаление категории (только свои, не дефолтные)
+app.delete('/api/categories/:id', isAuthenticated, (req, res) => {
+    db.run(
+        "DELETE FROM categories WHERE id = ? AND user_id = ? AND is_default = 0",
+        [req.params.id, req.session.userId],
+        function(err) {
+            if (err) {
+                res.status(500).json({ error: 'Ошибка удаления' });
+            } else if (this.changes === 0) {
+                res.status(404).json({ error: 'Категория не найдена или не может быть удалена' });
+            } else {
+                res.json({ success: true });
+            }
+        }
+    );
+});
+
+// ========== СТРАНИЦА АНАЛИТИКИ ==========
+
+app.get('/analytics', isAuthenticated, (req, res) => {
+    // Данные для графика по категориям
+    db.all(`
+        SELECT 
+            category,
+            SUM(CASE WHEN type = 'income' THEN amount ELSE 0 END) as total_income,
+            SUM(CASE WHEN type = 'expense' THEN amount ELSE 0 END) as total_expense
+        FROM transactions
+        WHERE user_id = ?
+        GROUP BY category
+    `, [req.session.userId], (err, categoryData) => {
+        
+        // Данные для графика по месяцам
+        db.all(`
+            SELECT 
+                strftime('%Y-%m', date) as month,
+                SUM(CASE WHEN type = 'income' THEN amount ELSE 0 END) as income,
+                SUM(CASE WHEN type = 'expense' THEN amount ELSE 0 END) as expense
+            FROM transactions
+            WHERE user_id = ?
+            GROUP BY month
+            ORDER BY month
+        `, [req.session.userId], (err, monthlyData) => {
+            
+            res.render('analytics', { 
+                categoryData: categoryData || [],
+                monthlyData: monthlyData || [],
+                user: req.session.username,
+                currentPage: 'analytics'
+            });
+        });
+    });
+});
+
+// ========== API МАРШРУТЫ ==========
+
+// API для получения категорий
+app.get('/api/categories', isAuthenticated, (req, res) => {
+    const query = `
+        SELECT * FROM categories 
+        WHERE user_id = ? OR is_default = 1
+        ORDER BY type, name
+    `;
+    
+    db.all(query, [req.session.userId], (err, rows) => {
+        if (err) {
+            console.error('Ошибка получения категорий:', err);
+            res.json([]);
+        } else {
+            res.json(rows);
+        }
+    });
+});
+
+// API для получения одной транзакции
 app.get('/api/transaction/:id', isAuthenticated, (req, res) => {
     db.get(
         "SELECT * FROM transactions WHERE id = ? AND user_id = ?",
@@ -337,7 +487,7 @@ app.get('/api/transaction/:id', isAuthenticated, (req, res) => {
     );
 });
 
-// Обновить транзакцию
+// Обновление транзакции
 app.put('/api/transaction/:id', isAuthenticated, (req, res) => {
     const { type, amount, category, description, date } = req.body;
     
@@ -358,7 +508,25 @@ app.put('/api/transaction/:id', isAuthenticated, (req, res) => {
         }
     );
 });
-const PORT = process.env.PORT || 3000; 
-app.listen(PORT, '0.0.0.0', () => {    
+
+// API для данных графика
+app.get('/api/chart-data', isAuthenticated, (req, res) => {
+    db.all(`
+        SELECT 
+            category,
+            SUM(CASE WHEN type = 'income' THEN amount ELSE 0 END) as total_income,
+            SUM(CASE WHEN type = 'expense' THEN amount ELSE 0 END) as total_expense
+        FROM transactions
+        WHERE user_id = ?
+        GROUP BY category
+    `, [req.session.userId], (err, rows) => {
+        res.json(rows || []);
+    });
+});
+
+// ========== ЗАПУСК СЕРВЕРА ==========
+
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, '0.0.0.0', () => {
     console.log(`Сервер запущен на порту ${PORT}`);
 });

@@ -34,4 +34,18 @@
     "edit": "Өңдеу",
     "save": "Сақтау",
     "cancel": "Болдырмау"
+    "dashboard": "Басты бет",
+    "operations": "Операциялар",
+    "categories": "Санаттар",
+    "analytics": "Талдау",
+    "total_balance": "Жалпы баланс",
+    "recent_operations": "Соңғы операциялар",
+    "view_all": "Барлығын көру",
+    "no_operations": "Операциялар жоқ",
+    "add_first": "Бірінші операцияңызды қосыңыз"
+    "total_income": "Барлық кірістер",
+    "total_expense": "Барлық шығыстар",
+    "savings": "Жинақ",
+    "savings_rate": "Жинақ нормасы",
+    "category_name": "Санат атауы"
 }

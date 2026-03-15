@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="<%= lang %>">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= t('operations') %> | <%= t('app_name') %></title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            display: flex;
+            gap: 20px;
+        }
+        .sidebar {
+            width: 350px;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            height: fit-content;
+        }
+        .main-content {
+            flex: 1;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #666;
+            font-weight: bold;
+        }
+        input, select, textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+            font-size: 14px;
+        }
+        button {
+            background-color: #3498db;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            width: 100%;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #2980b9;
+        }
+        .btn-success {
+            background-color: #2ecc71;
+        }
+        .btn-success:hover {
+            background-color: #27ae60;
+        }
+        .filters {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+        }
+        .filter-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th {
+            background-color: #3498db;
+            color: white;
+            padding: 12px;
+            text-align: left;
+        }
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #eee;
+        }
+        tr:hover {
+            background-color: #f8f9fa;
+        }
+        .income {
+            color: #2ecc71;
+            font-weight: bold;
+        }
+        .expense {
+            color: #e74c3c;
+            font-weight: bold;
+        }
+        .actions {
+            display: flex;
+            gap: 5px;
+        }
+        .edit-btn {
+            background-color: #f39c12;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            text-decoration: none;
+        }
+        .delete-btn {
+            background-color: #e74c3c;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            text-decoration: none;
+        }
+        .category-group {
+            margin-top: 10px;
+        }
+        .category-group select {
+            margin-bottom: 10px;
+        }
+        .new-category {
+            display: flex;
+            gap: 10px;
+        }
+        .new-category input {
+            flex: 1;
+        }
+        .new-category select {
+            width: 100px;
+        }
+        .new-category button {
+            width: auto;
+            padding: 10px 15px;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+        }
+        .modal-content {
+            background-color: white;
+            margin: 50px auto;
+            padding: 20px;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 500px;
+        }
+        .close {
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <% include partials/header %>
+    
+    <div class="container">
+        <!-- Левая колонка: форма добавления -->
+        <div class="sidebar">
+            <h3><%= t('add_operation') %></h3>
+            <form action="/add" method="POST">
+                <div class="form-group">
+                    <label><%= t('type') %></label>
+                    <select id="type" name="type" required>
+                        <option value="income"><%= t('income') %></option>
+                        <option value="expense"><%= t('expense') %></option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label><%= t('amount') %></label>
+                    <input type="number" name="amount" step="0.01" required>
+                </div>
+                
+                <div class="form-group">
+                    <label><%= t('date') %></label>
+                    <input type="date" name="date" value="<%= new Date().toISOString().split('T')[0] %>" required>
+                </div>
+                
+                <div class="form-group">
+                    <label><%= t('category') %></label>
+                    <select id="category-select" name="category" required style="margin-bottom: 10px;">
+                        <option value=""><%= t('choose_category') %></option>
+                        <optgroup label="<%= t('income') %>" id="income-categories"></optgroup>
+                        <optgroup label="<%= t('expense') %>" id="expense-categories"></optgroup>
+                    </select>
+                    
+                    <div class="new-category">
+                        <input type="text" id="new-category-name" placeholder="<%= t('new_category') %>">
+                        <select id="new-category-type">
+                            <option value="income"><%= t('income') %></option>
+                            <option value="expense"><%= t('expense') %></option>
+                        </select>
+                        <button type="button" id="add-category-btn" class="btn-success"><%= t('add_category') %></button>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label><%= t('description') %></label>
+                    <textarea name="description" rows="3"></textarea>
+                </div>
+                
+                <button type="submit"><%= t('add_button') %></button>
+            </form>
+        </div>
+        
+        <!-- Правая колонка: список операций с фильтрами -->
+        <div class="main-content">
+            <h3><%= t('filters') %></h3>
+            <div class="filters">
+                <form action="/operations" method="GET">
+                    <div class="filter-row">
+                        <div>
+                            <label><%= t('date_from') %></label>
+                            <input type="date" name="date_from" value="<%= filters.date_from || '' %>">
+                        </div>
+                        <div>
+                            <label><%= t('date_to') %></label>
+                            <input type="date" name="date_to" value="<%= filters.date_to || '' %>">
+                        </div>
+                        <div>
+                            <label><%= t('type') %></label>
+                            <select name="type">
+                                <option value="all" <%= filters.type === 'all' ? 'selected' : '' %>><%= t('all') %></option>
+                                <option value="income" <%= filters.type === 'income' ? 'selected' : '' %>><%= t('only_income') %></option>
+                                <option value="expense" <%= filters.type === 'expense' ? 'selected' : '' %>><%= t('only_expense') %></option>
+                            </select>
+                        </div>
+                        <div>
+                            <label><%= t('category') %></label>
+                            <input type="text" name="category" value="<%= filters.category || '' %>" placeholder="<%= t('category') %>">
+                        </div>
+                    </div>
+                    <button type="submit"><%= t('apply') %></button>
+                </form>
+            </div>
+            
+            <h3><%= t('history') %></h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th><%= t('date') %></th>
+                        <th><%= t('type') %></th>
+                        <th><%= t('category') %></th>
+                        <th><%= t('description') %></th>
+                        <th><%= t('amount') %></th>
+                        <th><%= t('actions') %></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% if (transactions.length === 0) { %>
+                        <tr>
+                            <td colspan="6" style="text-align: center; padding: 40px;">
+                                <%= t('no_operations') %>
+                            </td>
+                        </tr>
+                    <% } else { %>
+                        <% transactions.forEach(transaction => { %>
+                            <tr>
+                                <td><%= transaction.date %></td>
+                                <td><%= transaction.type === 'income' ? '💰 ' + t('income') : '💸 ' + t('expense') %></td>
+                                <td><%= transaction.category %></td>
+                                <td><%= transaction.description || '-' %></td>
+                                <td class="<%= transaction.type %>">
+                                    <%= transaction.type === 'income' ? '+' : '-' %> 
+                                    <%= transaction.amount.toLocaleString('ru-RU') %> ₸
+                                </td>
+                                <td class="actions">
+                                    <button class="edit-btn" onclick="editTransaction(<%= transaction.id %>)">✏️ <%= t('edit') %></button>
+                                    <a href="/delete/<%= transaction.id %>" class="delete-btn" onclick="return confirm('<%= t('delete') %>?')"><%= t('delete') %></a>
+                                </td>
+                            </tr>
+                        <% }) %>
+                    <% } %>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+    <!-- Модальное окно редактирования -->
+    <div id="editModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeEditModal()">&times;</span>
+            <h3><%= t('edit') %></h3>
+            <form id="editForm">
+                <input type="hidden" id="edit-id">
+                <div class="form-group">
+                    <label><%= t('type') %></label>
+                    <select id="edit-type" required>
+                        <option value="income"><%= t('income') %></option>
+                        <option value="expense"><%= t('expense') %></option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label><%= t('amount') %></label>
+                    <input type="number" id="edit-amount" step="0.01" required>
+                </div>
+                <div class="form-group">
+                    <label><%= t('date') %></label>
+                    <input type="date" id="edit-date" required>
+                </div>
+                <div class="form-group">
+                    <label><%= t('category') %></label>
+                    <input type="text" id="edit-category" required>
+                </div>
+                <div class="form-group">
+                    <label><%= t('description') %></label>
+                    <textarea id="edit-description" rows="3"></textarea>
+                </div>
+                <button type="submit"><%= t('save') %></button>
+            </form>
+        </div>
+    </div>
+    
+    <script>
+        // Загрузка категорий
+        fetch('/api/categories')
+            .then(response => response.json())
+            .then(categories => {
+                console.log('Категории загружены:', categories);
+                
+                const incomeGroup = document.getElementById('income-categories');
+                const expenseGroup = document.getElementById('expense-categories');
+                const mainSelect = document.getElementById('category-select');
+                
+                if (!mainSelect) return;
+                
+                // Очищаем старые опции
+                while (mainSelect.options.length > 1) {
+                    mainSelect.remove(1);
+                }
+                
+                categories.forEach(cat => {
+                    const option = document.createElement('option');
+                    option.value = cat.name;
+                    option.textContent = cat.name;
+                    option.dataset.type = cat.type;
+                    mainSelect.appendChild(option);
+                    
+                    const optOption = document.createElement('option');
+                    optOption.value = cat.name;
+                    optOption.textContent = cat.name;
+                    if (cat.type === 'income') {
+                        incomeGroup.appendChild(optOption);
+                    } else {
+                        expenseGroup.appendChild(optOption);
+                    }
+                });
+            });
+        
+        // Добавление новой категории
+        document.getElementById('add-category-btn')?.addEventListener('click', function() {
+            const name = document.getElementById('new-category-name').value;
+            const type = document.getElementById('new-category-type').value;
+            
+            if (!name) {
+                alert('Введите название категории');
+                return;
+            }
+            
+            fetch('/api/categories', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name, type })
+            })
+            .then(response => response.json())
+            .then(cat => {
+                const mainSelect = document.getElementById('category-select');
+                const option = document.createElement('option');
+                option.value = cat.name;
+                option.textContent = cat.name;
+                option.dataset.type = cat.type;
+                mainSelect.appendChild(option);
+                
+                document.getElementById('new-category-name').value = '';
+                alert('Категория добавлена!');
+            });
+        });
+        
+        // Фильтрация категорий по типу операции
+        document.getElementById('type')?.addEventListener('change', function() {
+            const type = this.value;
+            const options = document.getElementById('category-select').options;
+            
+            for (let i = 1; i < options.length; i++) {
+                const option = options[i];
+                const catType = option.dataset.type;
+                option.style.display = (catType === type) ? '' : 'none';
+            }
+        });
+        
+        // Редактирование транзакции
+        function editTransaction(id) {
+            fetch(`/api/transaction/${id}`)
+                .then(response => response.json())
+                .then(t => {
+                    document.getElementById('edit-id').value = t.id;
+                    document.getElementById('edit-type').value = t.type;
+                    document.getElementById('edit-amount').value = t.amount;
+                    document.getElementById('edit-date').value = t.date;
+                    document.getElementById('edit-category').value = t.category;
+                    document.getElementById('edit-description').value = t.description || '';
+                    document.getElementById('editModal').style.display = 'block';
+                });
+        }
+        
+        function closeEditModal() {
+            document.getElementById('editModal').style.display = 'none';
+        }
+        
+        document.getElementById('editForm')?.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const id = document.getElementById('edit-id').value;
+            const data = {
+                type: document.getElementById('edit-type').value,
+                amount: document.getElementById('edit-amount').value,
+                date: document.getElementById('edit-date').value,
+                category: document.getElementById('edit-category').value,
+                description: document.getElementById('edit-description').value
+            };
+            
+            fetch(`/api/transaction/${id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            })
+            .then(response => {
+                if (response.ok) {
+                    location.reload();
+                }
+            });
+        });
+        
+        // Закрыть модалку при клике вне
+        window.onclick = function(event) {
+            const modal = document.getElementById('editModal');
+            if (event.target === modal) {
+                closeEditModal();
+            }
+        };
+    </script>
+</body>
+</html>

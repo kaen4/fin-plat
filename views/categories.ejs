@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="<%= lang %>">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= t('categories') %> | <%= t('app_name') %></title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            display: flex;
+            gap: 20px;
+        }
+        .sidebar {
+            width: 350px;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            height: fit-content;
+        }
+        .main-content {
+            flex: 1;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #666;
+            font-weight: bold;
+        }
+        input, select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+            font-size: 14px;
+        }
+        button {
+            background-color: #3498db;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            width: 100%;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #2980b9;
+        }
+        .btn-success {
+            background-color: #2ecc71;
+        }
+        .btn-success:hover {
+            background-color: #27ae60;
+        }
+        .btn-danger {
+            background-color: #e74c3c;
+        }
+        .btn-danger:hover {
+            background-color: #c0392b;
+        }
+        .category-section {
+            margin-bottom: 30px;
+        }
+        .category-section h3 {
+            color: #333;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+        .category-list {
+            display: grid;
+            gap: 10px;
+        }
+        .category-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 15px;
+            background-color: #f8f9fa;
+            border-radius: 6px;
+            border-left: 4px solid;
+            transition: transform 0.2s;
+        }
+        .category-item:hover {
+            transform: translateX(5px);
+        }
+        .category-item.income {
+            border-left-color: #2ecc71;
+        }
+        .category-item.expense {
+            border-left-color: #e74c3c;
+        }
+        .category-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .category-icon {
+            font-size: 20px;
+        }
+        .category-name {
+            font-weight: bold;
+            color: #333;
+        }
+        .category-badge {
+            font-size: 12px;
+            padding: 3px 8px;
+            border-radius: 12px;
+            background-color: #e0e0e0;
+            color: #666;
+        }
+        .category-actions {
+            display: flex;
+            gap: 5px;
+        }
+        .delete-btn {
+            background-color: #e74c3c;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: background-color 0.3s;
+        }
+        .delete-btn:hover {
+            background-color: #c0392b;
+        }
+        .delete-btn:disabled {
+            background-color: #bdc3c7;
+            cursor: not-allowed;
+        }
+        .stats {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 6px;
+        }
+        .stats-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+        .stats-label {
+            color: #666;
+        }
+        .stats-value {
+            font-weight: bold;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <% include partials/header %>
+    
+    <div class="container">
+        <!-- Левая колонка: форма добавления категории -->
+        <div class="sidebar">
+            <h3><%= t('add_category') %></h3>
+            <form id="addCategoryForm">
+                <div class="form-group">
+                    <label><%= t('category_name') %></label>
+                    <input type="text" id="new-category-name" placeholder="<%= t('category_name') %>" required>
+                </div>
+                
+                <div class="form-group">
+                    <label><%= t('type') %></label>
+                    <select id="new-category-type" required>
+                        <option value="income"><%= t('income') %></option>
+                        <option value="expense"><%= t('expense') %></option>
+                    </select>
+                </div>
+                
+                <button type="submit" class="btn-success"><%= t('add_category') %></button>
+            </form>
+            
+            <div class="stats">
+                <h4>Статистика</h4>
+                <div class="stats-row">
+                    <span class="stats-label">Всего категорий:</span>
+                    <span class="stats-value"><%= categories.length %></span>
+                </div>
+                <div class="stats-row">
+                    <span class="stats-label">Доходы:</span>
+                    <span class="stats-value"><%= categories.filter(c => c.type === 'income').length %></span>
+                </div>
+                <div class="stats-row">
+                    <span class="stats-label">Расходы:</span>
+                    <span class="stats-value"><%= categories.filter(c => c.type === 'expense').length %></span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Правая колонка: списки категорий -->
+        <div class="main-content">
+            <div class="category-section">
+                <h3>💰 <%= t('income') %></h3>
+                <div class="category-list">
+                    <% categories.filter(c => c.type === 'income').forEach(cat => { %>
+                        <div class="category-item income" data-id="<%= cat.id %>" data-default="<%= cat.is_default %>">
+                            <div class="category-info">
+                                <span class="category-icon">💰</span>
+                                <span class="category-name"><%= cat.name %></span>
+                                <% if (cat.is_default) { %>
+                                    <span class="category-badge">по умолчанию</span>
+                                <% } %>
+                            </div>
+                            <div class="category-actions">
+                                <% if (!cat.is_default) { %>
+                                    <button class="delete-btn" onclick="deleteCategory(<%= cat.id %>)">🗑️ <%= t('delete') %></button>
+                                <% } else { %>
+                                    <button class="delete-btn" disabled title="Нельзя удалить категорию по умолчанию">🗑️</button>
+                                <% } %>
+                            </div>
+                        </div>
+                    <% }) %>
+                    
+                    <% if (categories.filter(c => c.type === 'income').length === 0) { %>
+                        <p style="color: #999; text-align: center; padding: 20px;">Нет категорий доходов</p>
+                    <% } %>
+                </div>
+            </div>
+            
+            <div class="category-section">
+                <h3>💸 <%= t('expense') %></h3>
+                <div class="category-list">
+                    <% categories.filter(c => c.type === 'expense').forEach(cat => { %>
+                        <div class="category-item expense" data-id="<%= cat.id %>" data-default="<%= cat.is_default %>">
+                            <div class="category-info">
+                                <span class="category-icon">💸</span>
+                                <span class="category-name"><%= cat.name %></span>
+                                <% if (cat.is_default) { %>
+                                    <span class="category-badge">по умолчанию</span>
+                                <% } %>
+                            </div>
+                            <div class="category-actions">
+                                <% if (!cat.is_default) { %>
+                                    <button class="delete-btn" onclick="deleteCategory(<%= cat.id %>)">🗑️ <%= t('delete') %></button>
+                                <% } else { %>
+                                    <button class="delete-btn" disabled title="Нельзя удалить категорию по умолчанию">🗑️</button>
+                                <% } %>
+                            </div>
+                        </div>
+                    <% }) %>
+                    
+                    <% if (categories.filter(c => c.type === 'expense').length === 0) { %>
+                        <p style="color: #999; text-align: center; padding: 20px;">Нет категорий расходов</p>
+                    <% } %>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Добавление новой категории
+        document.getElementById('addCategoryForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const name = document.getElementById('new-category-name').value;
+            const type = document.getElementById('new-category-type').value;
+            
+            if (!name) {
+                alert('Введите название категории');
+                return;
+            }
+            
+            fetch('/api/categories', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name, type })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Ошибка при добавлении');
+                }
+                return response.json();
+            })
+            .then(() => {
+                location.reload(); // Перезагружаем страницу, чтобы увидеть новую категорию
+            })
+            .catch(err => {
+                console.error('Ошибка:', err);
+                alert('Ошибка при добавлении категории');
+            });
+        });
+        
+        // Удаление категории
+        window.deleteCategory = function(id) {
+            if (!confirm('Удалить категорию? Операции с этой категорией не будут затронуты.')) {
+                return;
+            }
+            
+            fetch(`/api/categories/${id}`, {
+                method: 'DELETE'
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Ошибка при удалении');
+                }
+                location.reload(); // Перезагружаем страницу
+            })
+            .catch(err => {
+                console.error('Ошибка:', err);
+                alert('Ошибка при удалении категории');
+            });
+        };
+    </script>
+</body>
+</html>

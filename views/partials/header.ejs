@@ -1,0 +1,30 @@
+<header style="background-color: #fff; padding: 15px 20px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+        <h1 style="margin: 0;"><%= t('app_name') %></h1>
+        
+        <nav style="display: flex; gap: 15px;">
+            <a href="/" style="text-decoration: none; padding: 8px 15px; <%= currentPage === 'dashboard' ? 'background-color: #3498db; color: white;' : 'background-color: #f0f0f0; color: #333;' %> border-radius: 4px;">
+                📊 <%= t('dashboard') %>
+            </a>
+            <a href="/operations" style="text-decoration: none; padding: 8px 15px; <%= currentPage === 'operations' ? 'background-color: #3498db; color: white;' : 'background-color: #f0f0f0; color: #333;' %> border-radius: 4px;">
+                💰 <%= t('operations') %>
+            </a>
+            <a href="/categories" style="text-decoration: none; padding: 8px 15px; <%= currentPage === 'categories' ? 'background-color: #3498db; color: white;' : 'background-color: #f0f0f0; color: #333;' %> border-radius: 4px;">
+                🏷️ <%= t('categories') %>
+            </a>
+            <a href="/analytics" style="text-decoration: none; padding: 8px 15px; <%= currentPage === 'analytics' ? 'background-color: #3498db; color: white;' : 'background-color: #f0f0f0; color: #333;' %> border-radius: 4px;">
+                📈 <%= t('analytics') %>
+            </a>
+        </nav>
+        
+        <div style="display: flex; gap: 15px; align-items: center;">
+            <div class="lang-switcher" style="display: flex; gap: 5px;">
+                <a href="?lang=ru" style="text-decoration: none; padding: 5px 10px; <%= lang === 'ru' ? 'background-color: #3498db; color: white;' : 'background-color: #f0f0f0; color: #333;' %> border-radius: 4px;">Рус</a>
+                <a href="?lang=kk" style="text-decoration: none; padding: 5px 10px; <%= lang === 'kk' ? 'background-color: #3498db; color: white;' : 'background-color: #f0f0f0; color: #333;' %> border-radius: 4px;">Қаз</a>
+                <a href="?lang=en" style="text-decoration: none; padding: 5px 10px; <%= lang === 'en' ? 'background-color: #3498db; color: white;' : 'background-color: #f0f0f0; color: #333;' %> border-radius: 4px;">Eng</a>
+            </div>
+            <span>👤 <%= user %></span>
+            <a href="/logout" style="background-color: #e74c3c; color: white; padding: 8px 15px; border-radius: 4px; text-decoration: none;"><%= t('logout') %></a>
+        </div>
+    </div>
+</header>

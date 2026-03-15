@@ -34,4 +34,19 @@
     "edit": "Редактировать",
     "save": "Сохранить",
     "cancel": "Отмена"
+    "dashboard": "Главная",
+    "operations": "Операции",
+    "categories": "Категории",
+    "analytics": "Аналитика"
+     "total_balance": "Общий баланс",
+    "recent_operations": "Последние операции",
+    "view_all": "Все",
+    "no_operations": "Нет операций",
+    "add_first": "Добавьте первую операцию"
+    "total_income": "Всего доходов",
+    "total_expense": "Всего расходов",
+    "savings": "Сбережения",
+    "savings_rate": "Норма сбережения",
+    "category_name": "Название категории
 }
+
