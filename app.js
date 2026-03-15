@@ -11,7 +11,7 @@ const pool = new Pool({
     ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
 });
 
-const RedisStore = require('connect-redis').default;
+const { RedisStore } = require('connect-redis');
 const redis = require('redis');
 
 const app = express();
