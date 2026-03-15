@@ -1,12 +1,299 @@
 <!DOCTYPE html>
-<html>
+<html lang="<%= lang || 'ru' %>">
 <head>
-  <meta charset="UTF-8">
-  <title>Test</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= t('dashboard') %> | <%= t('app_name') %></title>
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f5f7fb;
+            color: #222;
+        }
+
+        .page {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 24px;
+        }
+
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 16px;
+            flex-wrap: wrap;
+            background: #fff;
+            border-radius: 14px;
+            padding: 18px 22px;
+            box-shadow: 0 4px 18px rgba(0, 0, 0, 0.08);
+            margin-bottom: 24px;
+        }
+
+        .brand {
+            font-size: 28px;
+            font-weight: 700;
+            margin: 0;
+        }
+
+        .topbar-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .lang-switcher {
+            display: flex;
+            gap: 8px;
+        }
+
+        .lang-switcher a {
+            text-decoration: none;
+            padding: 8px 12px;
+            border-radius: 8px;
+            background: #eef2ff;
+            color: #333;
+            font-size: 14px;
+        }
+
+        .lang-switcher a.active {
+            background: #4f46e5;
+            color: #fff;
+        }
+
+        .user-box {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: #f8fafc;
+            border-radius: 10px;
+            padding: 8px 12px;
+        }
+
+        .logout-btn {
+            text-decoration: none;
+            padding: 8px 12px;
+            border-radius: 8px;
+            background: #ef4444;
+            color: white;
+            font-weight: 600;
+        }
+
+        .nav {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 24px;
+        }
+
+        .nav a {
+            text-decoration: none;
+            padding: 10px 14px;
+            border-radius: 10px;
+            background: #fff;
+            color: #333;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+        }
+
+        .nav a.active {
+            background: #4f46e5;
+            color: #fff;
+        }
+
+        .balance-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 28px;
+            border-radius: 18px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.16);
+            margin-bottom: 24px;
+        }
+
+        .balance-title {
+            margin: 0 0 10px 0;
+            font-size: 16px;
+            opacity: 0.9;
+        }
+
+        .balance-value {
+            font-size: 42px;
+            font-weight: 700;
+            margin: 0;
+        }
+
+        .content-card {
+            background: #fff;
+            border-radius: 16px;
+            padding: 22px;
+            box-shadow: 0 4px 18px rgba(0,0,0,0.08);
+        }
+
+        .content-card h2 {
+            margin-top: 0;
+            margin-bottom: 18px;
+            font-size: 22px;
+        }
+
+        .operations-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .operation-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 16px;
+            padding: 14px 16px;
+            border: 1px solid #eceff5;
+            border-radius: 12px;
+            background: #fafbff;
+        }
+
+        .operation-left {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .operation-category {
+            font-weight: 700;
+            font-size: 16px;
+        }
+
+        .operation-meta {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .operation-amount {
+            font-weight: 700;
+            font-size: 18px;
+            white-space: nowrap;
+        }
+
+        .operation-amount.income {
+            color: #16a34a;
+        }
+
+        .operation-amount.expense {
+            color: #dc2626;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 28px 12px;
+            color: #777;
+        }
+
+        .actions {
+            margin-top: 20px;
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .actions a {
+            text-decoration: none;
+            padding: 11px 16px;
+            border-radius: 10px;
+            background: #4f46e5;
+            color: white;
+            font-weight: 600;
+        }
+
+        .actions a.secondary {
+            background: #e5e7eb;
+            color: #222;
+        }
+
+        @media (max-width: 700px) {
+            .balance-value {
+                font-size: 32px;
+            }
+
+            .operation-item {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .operation-amount {
+                white-space: normal;
+            }
+        }
+    </style>
 </head>
 <body>
-  <h1>Index works</h1>
-  <p>User: <%= user %></p>
-  <p>Balance: <%= balance %></p>
+    <div class="page">
+        <div class="topbar">
+            <h1 class="brand"><%= t('app_name') %></h1>
+
+            <div class="topbar-right">
+                <div class="lang-switcher">
+                    <a href="/?lang=ru" class="<%= lang === 'ru' ? 'active' : '' %>">Рус</a>
+                    <a href="/?lang=kk" class="<%= lang === 'kk' ? 'active' : '' %>">Қаз</a>
+                    <a href="/?lang=en" class="<%= lang === 'en' ? 'active' : '' %>">Eng</a>
+                </div>
+
+                <div class="user-box">
+                    <span>👤 <%= user %></span>
+                </div>
+
+                <a class="logout-btn" href="/logout"><%= t('logout') %></a>
+            </div>
+        </div>
+
+        <div class="nav">
+            <a href="/" class="<%= currentPage === 'dashboard' ? 'active' : '' %>"><%= t('dashboard') %></a>
+            <a href="/operations"><%= t('operations') %></a>
+            <a href="/categories"><%= t('category') %></a>
+            <a href="/analytics"><%= t('analytics') %></a>
+        </div>
+
+        <div class="balance-card">
+            <p class="balance-title"><%= t('total_balance') %></p>
+            <p class="balance-value">
+                <%= Number(balance || 0).toLocaleString('ru-RU') %> ₸
+            </p>
+        </div>
+
+        <div class="content-card">
+            <h2><%= t('recent_operations') %></h2>
+
+            <% if (!recentTransactions || recentTransactions.length === 0) { %>
+                <div class="empty-state">
+                    <p><%= t('no_operations') %></p>
+                </div>
+            <% } else { %>
+                <div class="operations-list">
+                    <% recentTransactions.forEach(function(tx) { %>
+                        <div class="operation-item">
+                            <div class="operation-left">
+                                <div class="operation-category">
+                                    <%= tx.type === 'income' ? '💰' : '💸' %> <%= tx.category %>
+                                </div>
+                                <div class="operation-meta">
+                                    <%= tx.description || '-' %> · <%= tx.date %>
+                                </div>
+                            </div>
+
+                            <div class="operation-amount <%= tx.type %>">
+                                <%= tx.type === 'income' ? '+' : '-' %>
+                                <%= Number(tx.amount || 0).toLocaleString('ru-RU') %> ₸
+                            </div>
+                        </div>
+                    <% }) %>
+                </div>
+            <% } %>
+
+            <div class="actions">
+                <a href="/operations"><%= t('view_all') %></a>
+                <a href="/analytics" class="secondary"><%= t('analytics') %></a>
+            </div>
+        </div>
+    </div>
 </body>
 </html>
