@@ -405,6 +405,17 @@
 <body>
     <%
       filters = filters || {};
+
+      const formatDate = (value) => {
+        if (!value) return '-';
+        if (typeof value === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(value)) {
+          const [y, m, d] = value.split('-');
+          return `${d}.${m}.${y}`;
+        }
+        const dt = new Date(value);
+        if (Number.isNaN(dt.getTime())) return value;
+        return dt.toLocaleDateString('ru-RU');
+      };
     %>
 
     <div class="page">
@@ -552,7 +563,7 @@
                             <% } else { %>
                                 <% transactions.forEach(function(transaction) { %>
                                     <tr>
-                                        <td><%= transaction.date %></td>
+                                        <td><%= formatDate(transaction.date) %></td>
                                         <td>
                                             <span class="badge">
                                                 <%= transaction.type === 'income' ? '💰 ' + t('income') : '💸 ' + t('expense') %>
@@ -631,6 +642,19 @@
     <script>
         let allCategories = <%- JSON.stringify(categories || []) %>;
         let selectedCategory = '';
+
+        function toDateInputValue(value) {
+            if (!value) return '';
+            if (typeof value === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(value)) {
+                return value;
+            }
+            const dt = new Date(value);
+            if (Number.isNaN(dt.getTime())) return '';
+            const year = dt.getFullYear();
+            const month = String(dt.getMonth() + 1).padStart(2, '0');
+            const day = String(dt.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
 
         function renderCategories() {
             const typeSelect = document.getElementById('operation-type');
@@ -724,7 +748,7 @@
                     document.getElementById('edit-id').value = t.id;
                     document.getElementById('edit-type').value = t.type;
                     document.getElementById('edit-amount').value = t.amount;
-                    document.getElementById('edit-date').value = t.date;
+                    document.getElementById('edit-date').value = toDateInputValue(t.date);
                     document.getElementById('edit-category').value = t.category;
                     document.getElementById('edit-description').value = t.description || '';
                     document.getElementById('editModal').style.display = 'block';
