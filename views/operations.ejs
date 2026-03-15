@@ -1,177 +1,404 @@
 <!DOCTYPE html>
-<html lang="<%= lang %>">
+<html lang="<%= lang || 'ru' %>">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><%= t('operations') %> | <%= t('app_name') %></title>
     <style>
         body {
+            margin: 0;
             font-family: Arial, sans-serif;
-            max-width: 1400px;
+            background: #f5f7fb;
+            color: #222;
+        }
+
+        .page {
+            max-width: 1200px;
             margin: 0 auto;
-            padding: 20px;
-            background-color: #f5f5f5;
+            padding: 24px;
         }
-        .container {
+
+        .topbar {
             display: flex;
-            gap: 20px;
+            justify-content: space-between;
+            align-items: center;
+            gap: 16px;
+            flex-wrap: wrap;
+            background: #fff;
+            border-radius: 14px;
+            padding: 18px 22px;
+            box-shadow: 0 4px 18px rgba(0, 0, 0, 0.08);
+            margin-bottom: 24px;
         }
-        .sidebar {
-            width: 350px;
-            background-color: #fff;
-            padding: 20px;
+
+        .brand {
+            font-size: 28px;
+            font-weight: 700;
+            margin: 0;
+        }
+
+        .topbar-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .lang-switcher {
+            display: flex;
+            gap: 8px;
+        }
+
+        .lang-switcher a {
+            text-decoration: none;
+            padding: 8px 12px;
             border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            height: fit-content;
-        }
-        .main-content {
-            flex: 1;
-            background-color: #fff;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-        .form-group {
-            margin-bottom: 15px;
-        }
-        label {
-            display: block;
-            margin-bottom: 5px;
-            color: #666;
-            font-weight: bold;
-        }
-        input, select, textarea {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            box-sizing: border-box;
+            background: #eef2ff;
+            color: #333;
             font-size: 14px;
         }
-        button {
-            background-color: #3498db;
+
+        .lang-switcher a.active {
+            background: #4f46e5;
+            color: #fff;
+        }
+
+        .user-box {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: #f8fafc;
+            border-radius: 10px;
+            padding: 8px 12px;
+        }
+
+        .logout-btn {
+            text-decoration: none;
+            padding: 8px 12px;
+            border-radius: 8px;
+            background: #ef4444;
             color: white;
-            padding: 12px 20px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .nav {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 24px;
+        }
+
+        .nav a {
+            text-decoration: none;
+            padding: 10px 14px;
+            border-radius: 10px;
+            background: #fff;
+            color: #333;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+        }
+
+        .nav a.active {
+            background: #4f46e5;
+            color: #fff;
+        }
+
+        .layout {
+            display: grid;
+            grid-template-columns: 360px 1fr;
+            gap: 20px;
+            align-items: start;
+        }
+
+        .card {
+            background: #fff;
+            border-radius: 16px;
+            padding: 22px;
+            box-shadow: 0 4px 18px rgba(0,0,0,0.08);
+        }
+
+        .card h2,
+        .card h3 {
+            margin-top: 0;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 700;
+            font-size: 14px;
+        }
+
+        input,
+        select,
+        textarea {
             width: 100%;
-            transition: background-color 0.3s;
+            padding: 11px 12px;
+            border: 1px solid #d7dce3;
+            border-radius: 10px;
+            box-sizing: border-box;
+            font-size: 14px;
+            background: #fff;
         }
+
+        textarea {
+            resize: vertical;
+            min-height: 90px;
+        }
+
+        button {
+            background-color: #4f46e5;
+            color: white;
+            padding: 12px 18px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 15px;
+            font-weight: 600;
+            transition: 0.2s ease;
+        }
+
         button:hover {
-            background-color: #2980b9;
+            transform: translateY(-1px);
+            opacity: 0.96;
         }
+
         .btn-success {
-            background-color: #2ecc71;
+            background-color: #16a34a;
         }
-        .btn-success:hover {
-            background-color: #27ae60;
-        }
+
         .filters {
-            background-color: #f8f9fa;
-            padding: 15px;
-            border-radius: 4px;
+            background-color: #f8fafc;
+            padding: 16px;
+            border-radius: 12px;
             margin-bottom: 20px;
+            border: 1px solid #e8edf4;
         }
+
         .filter-row {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 10px;
-            margin-bottom: 10px;
+            grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+            gap: 12px;
+            margin-bottom: 12px;
         }
+
+        .filter-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .filter-actions a {
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 12px 18px;
+            border-radius: 10px;
+            background: #e5e7eb;
+            color: #222;
+            font-weight: 600;
+        }
+
+        .table-wrap {
+            overflow-x: auto;
+        }
+
         table {
             width: 100%;
             border-collapse: collapse;
+            min-width: 720px;
         }
+
         th {
-            background-color: #3498db;
+            background-color: #4f46e5;
             color: white;
-            padding: 12px;
+            padding: 14px 12px;
             text-align: left;
+            font-size: 14px;
         }
+
         td {
-            padding: 12px;
-            border-bottom: 1px solid #eee;
+            padding: 14px 12px;
+            border-bottom: 1px solid #eef2f7;
+            vertical-align: top;
         }
-        tr:hover {
-            background-color: #f8f9fa;
+
+        tr:hover td {
+            background-color: #fafbff;
         }
+
         .income {
-            color: #2ecc71;
-            font-weight: bold;
+            color: #16a34a;
+            font-weight: 700;
         }
+
         .expense {
-            color: #e74c3c;
-            font-weight: bold;
+            color: #dc2626;
+            font-weight: 700;
         }
+
         .actions {
             display: flex;
-            gap: 5px;
+            gap: 8px;
+            flex-wrap: wrap;
         }
+
         .edit-btn {
-            background-color: #f39c12;
+            background-color: #f59e0b;
             color: white;
             border: none;
-            padding: 5px 10px;
-            border-radius: 4px;
+            padding: 8px 12px;
+            border-radius: 8px;
             cursor: pointer;
-            font-size: 12px;
-            text-decoration: none;
+            font-size: 13px;
+            font-weight: 600;
+            width: auto;
         }
+
         .delete-btn {
-            background-color: #e74c3c;
+            background-color: #ef4444;
             color: white;
             border: none;
-            padding: 5px 10px;
-            border-radius: 4px;
+            padding: 8px 12px;
+            border-radius: 8px;
             cursor: pointer;
-            font-size: 12px;
+            font-size: 13px;
             text-decoration: none;
+            font-weight: 600;
         }
-        .category-group {
-            margin-top: 10px;
-        }
-        .category-group select {
+
+        .category-picker {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
             margin-bottom: 10px;
         }
-        .new-category {
-            display: flex;
-            gap: 10px;
-        }
-        .new-category input {
-            flex: 1;
-        }
-        .new-category select {
-            width: 100px;
-        }
-        .new-category button {
+
+        .category-chip {
+            border: 1px solid #dbe2ea;
+            background: #f8fafc;
+            color: #333;
+            border-radius: 999px;
+            padding: 10px 14px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s ease;
             width: auto;
-            padding: 10px 15px;
         }
+
+        .category-chip:hover {
+            background: #eef4ff;
+            border-color: #4f46e5;
+        }
+
+        .category-chip.active {
+            background: #4f46e5;
+            color: white;
+            border-color: #4f46e5;
+            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.25);
+        }
+
+        .selected-category-note {
+            font-size: 13px;
+            color: #666;
+            margin-bottom: 14px;
+            min-height: 18px;
+        }
+
+        .custom-category-box {
+            margin-top: 14px;
+            padding: 14px;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            background: #f9fafb;
+        }
+
+        .custom-category-title {
+            font-size: 14px;
+            font-weight: 700;
+            color: #444;
+            margin-bottom: 10px;
+        }
+
+        .new-category {
+            display: grid;
+            grid-template-columns: 1fr 120px auto;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .empty-row {
+            text-align: center;
+            padding: 40px 12px;
+            color: #777;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 700;
+            background: #eef2ff;
+            color: #3f3f46;
+        }
+
         .modal {
             display: none;
             position: fixed;
             z-index: 1000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0,0,0,0.5);
+            inset: 0;
+            background-color: rgba(0,0,0,0.45);
+            padding: 20px;
         }
+
         .modal-content {
             background-color: white;
-            margin: 50px auto;
+            margin: 40px auto;
             padding: 20px;
-            border-radius: 8px;
-            width: 90%;
-            max-width: 500px;
+            border-radius: 16px;
+            width: 100%;
+            max-width: 520px;
+            box-shadow: 0 12px 40px rgba(0,0,0,0.2);
         }
+
         .close {
             float: right;
             font-size: 28px;
             font-weight: bold;
             cursor: pointer;
+            line-height: 1;
+        }
+
+        .close:hover {
+            color: #ef4444;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            margin-top: 14px;
+        }
+
+        .secondary-btn {
+            background: #e5e7eb;
+            color: #222;
+        }
+
+        @media (max-width: 960px) {
+            .layout {
+                grid-template-columns: 1fr;
+            }
+
+            .new-category {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
@@ -180,133 +407,180 @@
       filters = filters || {};
     %>
 
-    <%- include('partials/header') %>
+    <div class="page">
+        <div class="topbar">
+            <h1 class="brand"><%= t('app_name') %></h1>
 
-    <div class="container">
-        <div class="sidebar">
-            <h3><%= t('add_operation') %></h3>
-            <form action="/add" method="POST">
-                <div class="form-group">
-                    <label><%= t('type') %></label>
-                    <select id="type" name="type" required>
-                        <option value="income"><%= t('income') %></option>
-                        <option value="expense"><%= t('expense') %></option>
-                    </select>
+            <div class="topbar-right">
+                <div class="lang-switcher">
+                    <a href="/operations?lang=ru" class="<%= lang === 'ru' ? 'active' : '' %>">Рус</a>
+                    <a href="/operations?lang=kk" class="<%= lang === 'kk' ? 'active' : '' %>">Қаз</a>
+                    <a href="/operations?lang=en" class="<%= lang === 'en' ? 'active' : '' %>">Eng</a>
                 </div>
 
-                <div class="form-group">
-                    <label><%= t('amount') %></label>
-                    <input type="number" name="amount" step="0.01" required>
+                <div class="user-box">
+                    <span>👤 <%= user %></span>
                 </div>
 
-                <div class="form-group">
-                    <label><%= t('date') %></label>
-                    <input type="date" name="date" value="<%= new Date().toISOString().split('T')[0] %>" required>
-                </div>
-
-            <div class="form-group">
-    <label><%= t('category') %></label>
-
-    <input type="hidden" id="category-input" name="category" required>
-
-    <div id="category-picker" class="category-picker"></div>
-
-    <div id="selected-category-note" class="selected-category-note">
-        <%= t('choose_category') %>
-    </div>
-
-    <div class="custom-category-box">
-        <div class="custom-category-title"><%= t('add_category') %></div>
-
-        <div class="new-category">
-            <input type="text" id="new-category-name" placeholder="<%= t('new_category') %>">
-            <select id="new-category-type">
-                <option value="income"><%= t('income') %></option>
-                <option value="expense"><%= t('expense') %></option>
-            </select>
-            <button type="button" id="add-category-btn" class="btn-success"><%= t('add_button') %></button>
-        </div>
-    </div>
-</div>
-
-                <div class="form-group">
-                    <label><%= t('description') %></label>
-                    <textarea name="description" rows="3"></textarea>
-                </div>
-
-                <button type="submit"><%= t('add_button') %></button>
-            </form>
+                <a class="logout-btn" href="/logout"><%= t('logout') %></a>
+            </div>
         </div>
 
-        <div class="main-content">
-            <h3><%= t('filters') %></h3>
-            <div class="filters">
-                <form action="/operations" method="GET">
-                    <div class="filter-row">
-                        <div>
-                            <label><%= t('date_from') %></label>
-                            <input type="date" name="date_from" value="<%= filters.date_from || '' %>">
+        <div class="nav">
+            <a href="/"><%= t('dashboard') %></a>
+            <a href="/operations" class="active"><%= t('operations') %></a>
+            <a href="/categories"><%= t('categories') %></a>
+            <a href="/analytics"><%= t('analytics') %></a>
+        </div>
+
+        <div class="layout">
+            <div class="card">
+                <h2><%= t('add_operation') %></h2>
+
+                <form id="add-operation-form" action="/add" method="POST">
+                    <div class="form-group">
+                        <label for="operation-type"><%= t('type') %></label>
+                        <select id="operation-type" name="type" required>
+                            <option value="income"><%= t('income') %></option>
+                            <option value="expense" selected><%= t('expense') %></option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="operation-amount"><%= t('amount') %></label>
+                        <input id="operation-amount" type="number" name="amount" step="0.01" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="operation-date"><%= t('date') %></label>
+                        <input id="operation-date" type="date" name="date" value="<%= new Date().toISOString().split('T')[0] %>" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label><%= t('category') %></label>
+
+                        <input type="hidden" id="category-input" name="category">
+
+                        <div id="category-picker" class="category-picker"></div>
+
+                        <div id="selected-category-note" class="selected-category-note">
+                            <%= t('choose_category') %>
                         </div>
-                        <div>
-                            <label><%= t('date_to') %></label>
-                            <input type="date" name="date_to" value="<%= filters.date_to || '' %>">
-                        </div>
-                        <div>
-                            <label><%= t('type') %></label>
-                            <select name="type">
-                                <option value="all" <%= filters.type === 'all' ? 'selected' : '' %>><%= t('all') %></option>
-                                <option value="income" <%= filters.type === 'income' ? 'selected' : '' %>><%= t('only_income') %></option>
-                                <option value="expense" <%= filters.type === 'expense' ? 'selected' : '' %>><%= t('only_expense') %></option>
-                            </select>
-                        </div>
-                        <div>
-                            <label><%= t('category') %></label>
-                            <input type="text" name="category" value="<%= filters.category || '' %>" placeholder="<%= t('category') %>">
+
+                        <div class="custom-category-box">
+                            <div class="custom-category-title"><%= t('add_category') %></div>
+
+                            <div class="new-category">
+                                <input type="text" id="new-category-name" placeholder="<%= t('new_category') %>">
+                                <select id="new-category-type">
+                                    <option value="income"><%= t('income') %></option>
+                                    <option value="expense" selected><%= t('expense') %></option>
+                                </select>
+                                <button type="button" id="add-category-btn" class="btn-success"><%= t('add_button') %></button>
+                            </div>
                         </div>
                     </div>
-                    <button type="submit"><%= t('apply') %></button>
+
+                    <div class="form-group">
+                        <label for="operation-description"><%= t('description') %></label>
+                        <textarea id="operation-description" name="description" rows="3"></textarea>
+                    </div>
+
+                    <button type="submit"><%= t('add_button') %></button>
                 </form>
             </div>
 
-            <h3><%= t('history') %></h3>
-            <table>
-                <thead>
-                    <tr>
-                        <th><%= t('date') %></th>
-                        <th><%= t('type') %></th>
-                        <th><%= t('category') %></th>
-                        <th><%= t('description') %></th>
-                        <th><%= t('amount') %></th>
-                        <th><%= t('actions') %></th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <% if (!transactions || transactions.length === 0) { %>
-                        <tr>
-                            <td colspan="6" style="text-align: center; padding: 40px;">
-                                <%= t('no_operations') %>
-                            </td>
-                        </tr>
-                    <% } else { %>
-                        <% transactions.forEach(transaction => { %>
+            <div class="card">
+                <h2><%= t('operations') %></h2>
+
+                <div class="filters">
+                    <form action="/operations" method="GET">
+                        <input type="hidden" name="lang" value="<%= lang %>">
+
+                        <div class="filter-row">
+                            <div>
+                                <label><%= t('date_from') %></label>
+                                <input type="date" name="date_from" value="<%= filters.date_from || '' %>">
+                            </div>
+
+                            <div>
+                                <label><%= t('date_to') %></label>
+                                <input type="date" name="date_to" value="<%= filters.date_to || '' %>">
+                            </div>
+
+                            <div>
+                                <label><%= t('type') %></label>
+                                <select id="filter-type" name="type">
+                                    <option value="all" <%= filters.type === 'all' ? 'selected' : '' %>><%= t('all') %></option>
+                                    <option value="income" <%= filters.type === 'income' ? 'selected' : '' %>><%= t('only_income') %></option>
+                                    <option value="expense" <%= filters.type === 'expense' ? 'selected' : '' %>><%= t('only_expense') %></option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label><%= t('category') %></label>
+                                <input type="text" name="category" value="<%= filters.category || '' %>" placeholder="<%= t('category') %>">
+                            </div>
+                        </div>
+
+                        <div class="filter-actions">
+                            <button type="submit"><%= t('apply') %></button>
+                            <a href="/operations?lang=<%= lang %>"><%= t('reset') %></a>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="table-wrap">
+                    <table>
+                        <thead>
                             <tr>
-                                <td><%= transaction.date %></td>
-                                <td><%= transaction.type === 'income' ? '💰 ' + t('income') : '💸 ' + t('expense') %></td>
-                                <td><%= transaction.category %></td>
-                                <td><%= transaction.description || '-' %></td>
-                                <td class="<%= transaction.type %>">
-                                    <%= transaction.type === 'income' ? '+' : '-' %>
-                                    <%= Number(transaction.amount || 0).toLocaleString('ru-RU') %> ₸
-                                </td>
-                                <td class="actions">
-                                    <button class="edit-btn" onclick="editTransaction(<%= transaction.id %>)">✏️ <%= t('edit') %></button>
-                                    <a href="/delete/<%= transaction.id %>" class="delete-btn" onclick="return confirm('<%= t('delete') %>?')"><%= t('delete') %></a>
-                                </td>
+                                <th><%= t('date') %></th>
+                                <th><%= t('type') %></th>
+                                <th><%= t('category') %></th>
+                                <th><%= t('description') %></th>
+                                <th><%= t('amount') %></th>
+                                <th><%= t('actions') %></th>
                             </tr>
-                        <% }) %>
-                    <% } %>
-                </tbody>
-            </table>
+                        </thead>
+                        <tbody>
+                            <% if (!transactions || transactions.length === 0) { %>
+                                <tr>
+                                    <td colspan="6" class="empty-row">
+                                        <%= t('no_operations') %>
+                                    </td>
+                                </tr>
+                            <% } else { %>
+                                <% transactions.forEach(function(transaction) { %>
+                                    <tr>
+                                        <td><%= transaction.date %></td>
+                                        <td>
+                                            <span class="badge">
+                                                <%= transaction.type === 'income' ? '💰 ' + t('income') : '💸 ' + t('expense') %>
+                                            </span>
+                                        </td>
+                                        <td><%= transaction.category %></td>
+                                        <td><%= transaction.description || '-' %></td>
+                                        <td class="<%= transaction.type %>">
+                                            <%= transaction.type === 'income' ? '+' : '-' %>
+                                            <%= Number(transaction.amount || 0).toLocaleString('ru-RU') %> ₸
+                                        </td>
+                                        <td>
+                                            <div class="actions">
+                                                <button class="edit-btn" type="button" onclick="editTransaction(<%= transaction.id %>)">
+                                                    ✏️ <%= t('edit') %>
+                                                </button>
+                                                <a href="/delete/<%= transaction.id %>" class="delete-btn" onclick="return confirm('<%= t('delete') %>?')">
+                                                    <%= t('delete') %>
+                                                </a>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                <% }) %>
+                            <% } %>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -314,71 +588,96 @@
         <div class="modal-content">
             <span class="close" onclick="closeEditModal()">&times;</span>
             <h3><%= t('edit') %></h3>
+
             <form id="editForm">
                 <input type="hidden" id="edit-id">
+
                 <div class="form-group">
-                    <label><%= t('type') %></label>
+                    <label for="edit-type"><%= t('type') %></label>
                     <select id="edit-type" required>
                         <option value="income"><%= t('income') %></option>
                         <option value="expense"><%= t('expense') %></option>
                     </select>
                 </div>
+
                 <div class="form-group">
-                    <label><%= t('amount') %></label>
+                    <label for="edit-amount"><%= t('amount') %></label>
                     <input type="number" id="edit-amount" step="0.01" required>
                 </div>
+
                 <div class="form-group">
-                    <label><%= t('date') %></label>
+                    <label for="edit-date"><%= t('date') %></label>
                     <input type="date" id="edit-date" required>
                 </div>
+
                 <div class="form-group">
-                    <label><%= t('category') %></label>
+                    <label for="edit-category"><%= t('category') %></label>
                     <input type="text" id="edit-category" required>
                 </div>
+
                 <div class="form-group">
-                    <label><%= t('description') %></label>
+                    <label for="edit-description"><%= t('description') %></label>
                     <textarea id="edit-description" rows="3"></textarea>
                 </div>
-                <button type="submit"><%= t('save') %></button>
+
+                <div class="modal-actions">
+                    <button type="button" class="secondary-btn" onclick="closeEditModal()"><%= t('cancel') %></button>
+                    <button type="submit"><%= t('save') %></button>
+                </div>
             </form>
         </div>
     </div>
 
     <script>
-        fetch('/api/categories')
-            .then(response => response.json())
-            .then(categories => {
-                const incomeGroup = document.getElementById('income-categories');
-                const expenseGroup = document.getElementById('expense-categories');
-                const mainSelect = document.getElementById('category-select');
+        let allCategories = <%- JSON.stringify(categories || []) %>;
+        let selectedCategory = '';
 
-                if (!mainSelect) return;
+        function renderCategories() {
+            const typeSelect = document.getElementById('operation-type');
+            const picker = document.getElementById('category-picker');
+            const hiddenInput = document.getElementById('category-input');
+            const selectedNote = document.getElementById('selected-category-note');
+            const customType = document.getElementById('new-category-type');
 
-                while (mainSelect.options.length > 1) {
-                    mainSelect.remove(1);
-                }
+            if (!typeSelect || !picker || !hiddenInput || !selectedNote) return;
 
-                categories.forEach(cat => {
-                    const option = document.createElement('option');
-                    option.value = cat.name;
-                    option.textContent = cat.name;
-                    option.dataset.type = cat.type;
-                    mainSelect.appendChild(option);
+            const currentType = typeSelect.value;
+            if (customType) customType.value = currentType;
 
-                    const optOption = document.createElement('option');
-                    optOption.value = cat.name;
-                    optOption.textContent = cat.name;
+            const filtered = allCategories.filter(cat => cat.type === currentType);
 
-                    if (cat.type === 'income') {
-                        incomeGroup.appendChild(optOption);
-                    } else {
-                        expenseGroup.appendChild(optOption);
-                    }
+            picker.innerHTML = '';
+
+            filtered.forEach(cat => {
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = 'category-chip' + (selectedCategory === cat.name ? ' active' : '');
+                btn.textContent = cat.name;
+
+                btn.addEventListener('click', () => {
+                    selectedCategory = cat.name;
+                    hiddenInput.value = cat.name;
+                    selectedNote.textContent = cat.name;
+                    renderCategories();
                 });
+
+                picker.appendChild(btn);
             });
 
+            const stillExists = filtered.some(cat => cat.name === selectedCategory);
+            if (!stillExists) {
+                selectedCategory = '';
+                hiddenInput.value = '';
+                selectedNote.textContent = '<%= t("choose_category") %>';
+            }
+        }
+
+        document.getElementById('operation-type')?.addEventListener('change', function() {
+            renderCategories();
+        });
+
         document.getElementById('add-category-btn')?.addEventListener('click', function() {
-            const name = document.getElementById('new-category-name').value;
+            const name = document.getElementById('new-category-name').value.trim();
             const type = document.getElementById('new-category-type').value;
 
             if (!name) {
@@ -393,26 +692,28 @@
             })
             .then(response => response.json())
             .then(cat => {
-                const mainSelect = document.getElementById('category-select');
-                const option = document.createElement('option');
-                option.value = cat.name;
-                option.textContent = cat.name;
-                option.dataset.type = cat.type;
-                mainSelect.appendChild(option);
+                allCategories.push(cat);
 
                 document.getElementById('new-category-name').value = '';
-                alert('Категория добавлена!');
+                document.getElementById('operation-type').value = cat.type;
+
+                selectedCategory = cat.name;
+                document.getElementById('category-input').value = cat.name;
+                document.getElementById('selected-category-note').textContent = cat.name;
+
+                renderCategories();
+            })
+            .catch(err => {
+                console.error('Ошибка добавления категории:', err);
+                alert('Ошибка при добавлении категории');
             });
         });
 
-        document.getElementById('type')?.addEventListener('change', function() {
-            const type = this.value;
-            const options = document.getElementById('category-select').options;
-
-            for (let i = 1; i < options.length; i++) {
-                const option = options[i];
-                const catType = option.dataset.type;
-                option.style.display = (catType === type) ? '' : 'none';
+        document.getElementById('add-operation-form')?.addEventListener('submit', function(e) {
+            const categoryInput = document.getElementById('category-input');
+            if (!categoryInput.value) {
+                e.preventDefault();
+                alert('Выберите категорию');
             }
         });
 
@@ -436,6 +737,7 @@
 
         document.getElementById('editForm')?.addEventListener('submit', function(e) {
             e.preventDefault();
+
             const id = document.getElementById('edit-id').value;
             const data = {
                 type: document.getElementById('edit-type').value,
@@ -453,7 +755,13 @@
             .then(response => {
                 if (response.ok) {
                     location.reload();
+                } else {
+                    alert('Ошибка при сохранении');
                 }
+            })
+            .catch(err => {
+                console.error('Ошибка:', err);
+                alert('Ошибка при сохранении');
             });
         });
 
@@ -463,6 +771,8 @@
                 closeEditModal();
             }
         };
+
+        renderCategories();
     </script>
 </body>
 </html>
