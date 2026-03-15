@@ -429,7 +429,7 @@
                             <div class="operation-item">
                                 <div class="operation-left">
                                     <div class="operation-category">
-                                        <%= tx.type === 'income' ? '💰' : '💸' %> <%= tx.category %>
+                                        <%= tx.type === 'income' ? '💰' : '💸' %> <%= translateCategory(tx.category) %>
                                     </div>
                                     <div class="operation-meta">
                                         <%= tx.description || '-' %> · <%= formatDate(tx.date) %>
