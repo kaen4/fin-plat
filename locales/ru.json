@@ -62,5 +62,21 @@
   "create_profile": "Заполните данные для создания нового профиля.",
   "feature_analytics": "Наглядная аналитика по доходам и расходам",
   "feature_expenses": "Удобный учёт ежедневных операций",
-  "feature_categories": "Готовые и пользовательские категории"
+  "feature_categories": "Готовые и пользовательские категории",
+
+  "category_salary": "Зарплата",
+  "category_freelance": "Фриланс",
+  "category_gifts": "Подарки",
+  "category_investments": "Инвестиции",
+  "category_other_income": "Другое (доход)",
+  "category_products": "Продукты",
+  "category_transport": "Транспорт",
+  "category_restaurants": "Рестораны",
+  "category_housing": "Жильё",
+  "category_entertainment": "Развлечения",
+  "category_health": "Здоровье",
+  "category_clothes": "Одежда",
+  "category_communication": "Связь",
+  "category_education": "Образование",
+  "category_other_expense": "Другое (расход)"
 }
