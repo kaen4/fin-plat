@@ -6,20 +6,16 @@ const bcrypt = require('bcrypt');
 const session = require('express-session');
 const fs = require('fs');
 
+// ========== ПОДКЛЮЧЕНИЕ REDIS ДЛЯ СЕССИЙ ==========
+const RedisStore = require('connect-redis').default;
+const redis = require('redis');
+
 const app = express();
 
 // Настройка middleware
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname, 'public')));
-
-// Настройка сессий
-app.use(session({
-    secret: 'your-secret-key-change-this',
-    resave: false,
-    saveUninitialized: false,
-    cookie: { secure: false }
-}));
 
 // Настройка шаблонизатора
 app.set('view engine', 'ejs');
@@ -54,12 +50,57 @@ try {
 
 // Middleware для языка
 app.use((req, res, next) => {
-    const lang = req.query.lang || req.session.lang || 'ru';
+    const lang = req.query.lang || req.session?.lang || 'ru';
     req.session.lang = lang;
     res.locals.lang = lang;
     res.locals.t = (key) => translations[lang]?.[key] || translations['ru']?.[key] || key;
     next();
 });
+
+// ========== НАСТРОЙКА REDIS ДЛЯ СЕССИЙ ==========
+app.set("trust proxy", 1); // важно для Render
+
+let redisClient;
+let sessionStore;
+
+if (process.env.REDIS_URL) {
+    try {
+        redisClient = redis.createClient({
+            url: process.env.REDIS_URL,
+            socket: {
+                tls: true,
+                rejectUnauthorized: false
+            }
+        });
+
+        redisClient.connect().then(() => {
+            console.log('✅ Redis подключён для хранения сессий');
+        }).catch(err => {
+            console.error('❌ Redis connection error:', err);
+        });
+
+        sessionStore = new RedisStore({ client: redisClient });
+    } catch (err) {
+        console.error('❌ Ошибка инициализации Redis:', err);
+    }
+} else {
+    console.log('⚠️ REDIS_URL не найден, сессии будут храниться в памяти (не для production)');
+}
+
+// Настройка сессий
+app.use(session({
+    store: sessionStore, // если undefined, использует MemoryStore
+    secret: process.env.SESSION_SECRET || 'your-secret-key-change-this-in-production',
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+        secure: process.env.NODE_ENV === 'production', // true в production
+        httpOnly: true,
+        maxAge: 24 * 60 * 60 * 1000, // 24 часа
+        sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'strict'
+    },
+    name: 'finance.sid'
+}));
 
 // Проверка авторизации
 function isAuthenticated(req, res, next) {
@@ -70,7 +111,7 @@ function isAuthenticated(req, res, next) {
     }
 }
 
-// Создание таблиц
+// ========== СОЗДАНИЕ ТАБЛИЦ ==========
 function createTables() {
     db.run(`
         CREATE TABLE IF NOT EXISTS transactions (
@@ -116,7 +157,7 @@ function createTables() {
         }
     });
 
-    // Создаем таблицу категорий, если её нет
+    // Создаем таблицу категорий
     db.run(`
         CREATE TABLE IF NOT EXISTS categories (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -131,7 +172,6 @@ function createTables() {
         else {
             console.log('Таблица categories готова');
             
-            // Добавляем категории по умолчанию, если таблица пустая
             db.get("SELECT COUNT(*) as count FROM categories", (err, row) => {
                 if (err) return;
                 if (row.count === 0) {
@@ -243,14 +283,15 @@ app.post('/register', async (req, res) => {
 });
 
 app.get('/logout', (req, res) => {
-    req.session.destroy();
-    res.redirect('/login');
+    req.session.destroy((err) => {
+        if (err) console.error('Ошибка при выходе:', err);
+        res.redirect('/login');
+    });
 });
 
 // ========== ГЛАВНАЯ СТРАНИЦА (ДАШБОРД) ==========
 
 app.get('/', isAuthenticated, (req, res) => {
-    // Получаем последние 5 операций для дашборда
     db.all(
         "SELECT * FROM transactions WHERE user_id = ? ORDER BY date DESC LIMIT 5", 
         [req.session.userId], 
@@ -259,7 +300,6 @@ app.get('/', isAuthenticated, (req, res) => {
                 return res.send('Ошибка загрузки данных');
             }
             
-            // Получаем общий баланс
             db.get(
                 "SELECT SUM(CASE WHEN type = 'income' THEN amount ELSE -amount END) as balance FROM transactions WHERE user_id = ?",
                 [req.session.userId],
@@ -284,7 +324,6 @@ app.get('/operations', isAuthenticated, (req, res) => {
     let query = "SELECT * FROM transactions WHERE user_id = ?";
     let params = [req.session.userId];
     
-    // Применяем фильтры, если они есть
     if (req.query.date_from) {
         query += " AND date >= ?";
         params.push(req.query.date_from);
@@ -312,7 +351,6 @@ app.get('/operations', isAuthenticated, (req, res) => {
             return res.send('Ошибка загрузки данных');
         }
         
-        // Получаем все категории для выпадающего списка
         db.all("SELECT * FROM categories WHERE user_id = ? OR is_default = 1 ORDER BY type, name", 
             [req.session.userId], 
             (err, categories) => {
@@ -328,7 +366,6 @@ app.get('/operations', isAuthenticated, (req, res) => {
     });
 });
 
-// Добавление операции
 app.post('/add', isAuthenticated, (req, res) => {
     const { type, amount, category, description, date } = req.body;
     
@@ -348,7 +385,6 @@ app.post('/add', isAuthenticated, (req, res) => {
     );
 });
 
-// Удаление операции
 app.get('/delete/:id', isAuthenticated, (req, res) => {
     db.run("DELETE FROM transactions WHERE id = ? AND user_id = ?", 
         [req.params.id, req.session.userId], 
@@ -374,7 +410,6 @@ app.get('/categories', isAuthenticated, (req, res) => {
     );
 });
 
-// Добавление категории
 app.post('/api/categories', isAuthenticated, (req, res) => {
     const { name, type } = req.body;
     
@@ -396,7 +431,6 @@ app.post('/api/categories', isAuthenticated, (req, res) => {
     );
 });
 
-// Удаление категории (только свои, не дефолтные)
 app.delete('/api/categories/:id', isAuthenticated, (req, res) => {
     db.run(
         "DELETE FROM categories WHERE id = ? AND user_id = ? AND is_default = 0",
@@ -416,7 +450,6 @@ app.delete('/api/categories/:id', isAuthenticated, (req, res) => {
 // ========== СТРАНИЦА АНАЛИТИКИ ==========
 
 app.get('/analytics', isAuthenticated, (req, res) => {
-    // Данные для графика по категориям
     db.all(`
         SELECT 
             category,
@@ -427,7 +460,6 @@ app.get('/analytics', isAuthenticated, (req, res) => {
         GROUP BY category
     `, [req.session.userId], (err, categoryData) => {
         
-        // Данные для графика по месяцам
         db.all(`
             SELECT 
                 strftime('%Y-%m', date) as month,
@@ -451,7 +483,6 @@ app.get('/analytics', isAuthenticated, (req, res) => {
 
 // ========== API МАРШРУТЫ ==========
 
-// API для получения категорий
 app.get('/api/categories', isAuthenticated, (req, res) => {
     const query = `
         SELECT * FROM categories 
@@ -469,7 +500,6 @@ app.get('/api/categories', isAuthenticated, (req, res) => {
     });
 });
 
-// API для получения одной транзакции
 app.get('/api/transaction/:id', isAuthenticated, (req, res) => {
     db.get(
         "SELECT * FROM transactions WHERE id = ? AND user_id = ?",
@@ -487,7 +517,6 @@ app.get('/api/transaction/:id', isAuthenticated, (req, res) => {
     );
 });
 
-// Обновление транзакции
 app.put('/api/transaction/:id', isAuthenticated, (req, res) => {
     const { type, amount, category, description, date } = req.body;
     
@@ -509,7 +538,6 @@ app.put('/api/transaction/:id', isAuthenticated, (req, res) => {
     );
 });
 
-// API для данных графика
 app.get('/api/chart-data', isAuthenticated, (req, res) => {
     db.all(`
         SELECT 
