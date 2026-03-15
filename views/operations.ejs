@@ -176,10 +176,13 @@
     </style>
 </head>
 <body>
-    <% include partials/header %>
-    
+    <%
+      filters = filters || {};
+    %>
+
+    <%- include('partials/header') %>
+
     <div class="container">
-        <!-- Левая колонка: форма добавления -->
         <div class="sidebar">
             <h3><%= t('add_operation') %></h3>
             <form action="/add" method="POST">
@@ -190,17 +193,17 @@
                         <option value="expense"><%= t('expense') %></option>
                     </select>
                 </div>
-                
+
                 <div class="form-group">
                     <label><%= t('amount') %></label>
                     <input type="number" name="amount" step="0.01" required>
                 </div>
-                
+
                 <div class="form-group">
                     <label><%= t('date') %></label>
                     <input type="date" name="date" value="<%= new Date().toISOString().split('T')[0] %>" required>
                 </div>
-                
+
                 <div class="form-group">
                     <label><%= t('category') %></label>
                     <select id="category-select" name="category" required style="margin-bottom: 10px;">
@@ -208,7 +211,7 @@
                         <optgroup label="<%= t('income') %>" id="income-categories"></optgroup>
                         <optgroup label="<%= t('expense') %>" id="expense-categories"></optgroup>
                     </select>
-                    
+
                     <div class="new-category">
                         <input type="text" id="new-category-name" placeholder="<%= t('new_category') %>">
                         <select id="new-category-type">
@@ -218,17 +221,16 @@
                         <button type="button" id="add-category-btn" class="btn-success"><%= t('add_category') %></button>
                     </div>
                 </div>
-                
+
                 <div class="form-group">
                     <label><%= t('description') %></label>
                     <textarea name="description" rows="3"></textarea>
                 </div>
-                
+
                 <button type="submit"><%= t('add_button') %></button>
             </form>
         </div>
-        
-        <!-- Правая колонка: список операций с фильтрами -->
+
         <div class="main-content">
             <h3><%= t('filters') %></h3>
             <div class="filters">
@@ -258,7 +260,7 @@
                     <button type="submit"><%= t('apply') %></button>
                 </form>
             </div>
-            
+
             <h3><%= t('history') %></h3>
             <table>
                 <thead>
@@ -272,7 +274,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <% if (transactions.length === 0) { %>
+                    <% if (!transactions || transactions.length === 0) { %>
                         <tr>
                             <td colspan="6" style="text-align: center; padding: 40px;">
                                 <%= t('no_operations') %>
@@ -286,8 +288,8 @@
                                 <td><%= transaction.category %></td>
                                 <td><%= transaction.description || '-' %></td>
                                 <td class="<%= transaction.type %>">
-                                    <%= transaction.type === 'income' ? '+' : '-' %> 
-                                    <%= transaction.amount.toLocaleString('ru-RU') %> ₸
+                                    <%= transaction.type === 'income' ? '+' : '-' %>
+                                    <%= Number(transaction.amount || 0).toLocaleString('ru-RU') %> ₸
                                 </td>
                                 <td class="actions">
                                     <button class="edit-btn" onclick="editTransaction(<%= transaction.id %>)">✏️ <%= t('edit') %></button>
@@ -300,8 +302,7 @@
             </table>
         </div>
     </div>
-    
-    <!-- Модальное окно редактирования -->
+
     <div id="editModal" class="modal">
         <div class="modal-content">
             <span class="close" onclick="closeEditModal()">&times;</span>
@@ -335,35 +336,32 @@
             </form>
         </div>
     </div>
-    
+
     <script>
-        // Загрузка категорий
         fetch('/api/categories')
             .then(response => response.json())
             .then(categories => {
-                console.log('Категории загружены:', categories);
-                
                 const incomeGroup = document.getElementById('income-categories');
                 const expenseGroup = document.getElementById('expense-categories');
                 const mainSelect = document.getElementById('category-select');
-                
+
                 if (!mainSelect) return;
-                
-                // Очищаем старые опции
+
                 while (mainSelect.options.length > 1) {
                     mainSelect.remove(1);
                 }
-                
+
                 categories.forEach(cat => {
                     const option = document.createElement('option');
                     option.value = cat.name;
                     option.textContent = cat.name;
                     option.dataset.type = cat.type;
                     mainSelect.appendChild(option);
-                    
+
                     const optOption = document.createElement('option');
                     optOption.value = cat.name;
                     optOption.textContent = cat.name;
+
                     if (cat.type === 'income') {
                         incomeGroup.appendChild(optOption);
                     } else {
@@ -371,17 +369,16 @@
                     }
                 });
             });
-        
-        // Добавление новой категории
+
         document.getElementById('add-category-btn')?.addEventListener('click', function() {
             const name = document.getElementById('new-category-name').value;
             const type = document.getElementById('new-category-type').value;
-            
+
             if (!name) {
                 alert('Введите название категории');
                 return;
             }
-            
+
             fetch('/api/categories', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -395,25 +392,23 @@
                 option.textContent = cat.name;
                 option.dataset.type = cat.type;
                 mainSelect.appendChild(option);
-                
+
                 document.getElementById('new-category-name').value = '';
                 alert('Категория добавлена!');
             });
         });
-        
-        // Фильтрация категорий по типу операции
+
         document.getElementById('type')?.addEventListener('change', function() {
             const type = this.value;
             const options = document.getElementById('category-select').options;
-            
+
             for (let i = 1; i < options.length; i++) {
                 const option = options[i];
                 const catType = option.dataset.type;
                 option.style.display = (catType === type) ? '' : 'none';
             }
         });
-        
-        // Редактирование транзакции
+
         function editTransaction(id) {
             fetch(`/api/transaction/${id}`)
                 .then(response => response.json())
@@ -427,11 +422,11 @@
                     document.getElementById('editModal').style.display = 'block';
                 });
         }
-        
+
         function closeEditModal() {
             document.getElementById('editModal').style.display = 'none';
         }
-        
+
         document.getElementById('editForm')?.addEventListener('submit', function(e) {
             e.preventDefault();
             const id = document.getElementById('edit-id').value;
@@ -442,7 +437,7 @@
                 category: document.getElementById('edit-category').value,
                 description: document.getElementById('edit-description').value
             };
-            
+
             fetch(`/api/transaction/${id}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
@@ -454,8 +449,7 @@
                 }
             });
         });
-        
-        // Закрыть модалку при клике вне
+
         window.onclick = function(event) {
             const modal = document.getElementById('editModal');
             if (event.target === modal) {
