@@ -96,6 +96,56 @@ try {
   console.log('Locales folder not found');
 }
 
+const defaultCategoryKeyMap = {
+  'Зарплата': 'category_salary',
+  'Фриланс': 'category_freelance',
+  'Подарки': 'category_gifts',
+  'Инвестиции': 'category_investments',
+  'Другое (доход)': 'category_other_income',
+  'Продукты': 'category_products',
+  'Транспорт': 'category_transport',
+  'Рестораны': 'category_restaurants',
+  'Жильё': 'category_housing',
+  'Развлечения': 'category_entertainment',
+  'Здоровье': 'category_health',
+  'Одежда': 'category_clothes',
+  'Связь': 'category_communication',
+  'Образование': 'category_education',
+  'Другое (расход)': 'category_other_expense',
+
+  'Salary': 'category_salary',
+  'Freelance': 'category_freelance',
+  'Gifts': 'category_gifts',
+  'Investments': 'category_investments',
+  'Other income': 'category_other_income',
+  'Groceries': 'category_products',
+  'Transport': 'category_transport',
+  'Restaurants': 'category_restaurants',
+  'Housing': 'category_housing',
+  'Entertainment': 'category_entertainment',
+  'Health': 'category_health',
+  'Clothes': 'category_clothes',
+  'Communication': 'category_communication',
+  'Education': 'category_education',
+  'Other expense': 'category_other_expense',
+
+  'Жалақы': 'category_salary',
+  'Фриланс': 'category_freelance',
+  'Сыйлықтар': 'category_gifts',
+  'Инвестициялар': 'category_investments',
+  'Басқа кіріс': 'category_other_income',
+  'Азық-түлік': 'category_products',
+  'Көлік': 'category_transport',
+  'Мейрамханалар': 'category_restaurants',
+  'Тұрғын үй': 'category_housing',
+  'Ойын-сауық': 'category_entertainment',
+  'Денсаулық': 'category_health',
+  'Киім': 'category_clothes',
+  'Байланыс': 'category_communication',
+  'Білім': 'category_education',
+  'Басқа шығыс': 'category_other_expense'
+};
+
 app.use((req, res, next) => {
   const allowedLangs = ['ru', 'kk', 'en'];
   const requestedLang = req.query.lang;
@@ -106,11 +156,20 @@ app.use((req, res, next) => {
     req.session.lang = lang;
   }
 
-  res.locals.lang = lang;
-  res.locals.t = (key) =>
+  const t = (key) =>
     translations[lang]?.[key] ||
     translations.ru?.[key] ||
     key;
+
+  const translateCategory = (categoryName) => {
+    const key = defaultCategoryKeyMap[categoryName];
+    if (!key) return categoryName;
+    return t(key);
+  };
+
+  res.locals.lang = lang;
+  res.locals.t = t;
+  res.locals.translateCategory = translateCategory;
 
   next();
 });
