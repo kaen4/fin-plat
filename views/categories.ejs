@@ -11,11 +11,13 @@
             background: #f5f7fb;
             color: #222;
         }
+
         .page {
-            max-width: 1100px;
+            max-width: 1200px;
             margin: 0 auto;
             padding: 24px;
         }
+
         .topbar {
             display: flex;
             justify-content: space-between;
@@ -28,21 +30,25 @@
             box-shadow: 0 4px 18px rgba(0, 0, 0, 0.08);
             margin-bottom: 24px;
         }
+
         .brand {
             font-size: 28px;
             font-weight: 700;
             margin: 0;
         }
+
         .topbar-right {
             display: flex;
             align-items: center;
             gap: 12px;
             flex-wrap: wrap;
         }
+
         .lang-switcher {
             display: flex;
             gap: 8px;
         }
+
         .lang-switcher a {
             text-decoration: none;
             padding: 8px 12px;
@@ -51,10 +57,12 @@
             color: #333;
             font-size: 14px;
         }
+
         .lang-switcher a.active {
             background: #4f46e5;
             color: #fff;
         }
+
         .user-box {
             display: flex;
             align-items: center;
@@ -63,6 +71,7 @@
             border-radius: 10px;
             padding: 8px 12px;
         }
+
         .logout-btn {
             text-decoration: none;
             padding: 8px 12px;
@@ -71,12 +80,14 @@
             color: white;
             font-weight: 600;
         }
+
         .nav {
             display: flex;
             gap: 10px;
             flex-wrap: wrap;
             margin-bottom: 24px;
         }
+
         .nav a {
             text-decoration: none;
             padding: 10px 14px;
@@ -85,40 +96,134 @@
             color: #333;
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
         }
+
         .nav a.active {
             background: #4f46e5;
             color: #fff;
         }
+
+        .layout {
+            display: grid;
+            grid-template-columns: 340px 1fr;
+            gap: 20px;
+            align-items: start;
+        }
+
         .card {
             background: #fff;
             border-radius: 16px;
             padding: 22px;
             box-shadow: 0 4px 18px rgba(0,0,0,0.08);
-            margin-bottom: 20px;
         }
-        .card h2 {
+
+        .card h2,
+        .card h3 {
             margin-top: 0;
         }
-        .category-grid {
+
+        .subtitle {
+            color: #666;
+            font-size: 14px;
+            margin-top: -6px;
+            margin-bottom: 18px;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 700;
+            font-size: 14px;
+        }
+
+        input,
+        select {
+            width: 100%;
+            padding: 11px 12px;
+            border: 1px solid #d7dce3;
+            border-radius: 10px;
+            box-sizing: border-box;
+            font-size: 14px;
+            background: #fff;
+        }
+
+        button {
+            background-color: #4f46e5;
+            color: white;
+            padding: 12px 18px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 15px;
+            font-weight: 600;
+            transition: 0.2s ease;
+        }
+
+        button:hover {
+            transform: translateY(-1px);
+            opacity: 0.96;
+        }
+
+        .full-btn {
+            width: 100%;
+        }
+
+        .two-col {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            grid-template-columns: 1fr 1fr;
             gap: 18px;
         }
+
+        .section-title {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 14px;
+        }
+
+        .count-badge {
+            background: #eef2ff;
+            color: #4338ca;
+            border-radius: 999px;
+            padding: 6px 10px;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
         .category-list {
             display: flex;
             flex-direction: column;
             gap: 10px;
         }
+
         .category-item {
             display: flex;
             justify-content: space-between;
             align-items: center;
             gap: 12px;
-            padding: 12px 14px;
-            border: 1px solid #e5e7eb;
+            padding: 14px;
+            border: 1px solid #e9edf3;
             border-radius: 12px;
             background: #fafbff;
         }
+
+        .category-name {
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 6px;
+        }
+
+        .meta-row {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
         .badge {
             display: inline-block;
             padding: 4px 10px;
@@ -126,29 +231,86 @@
             font-size: 12px;
             font-weight: 700;
         }
+
         .badge.income {
             background: #dcfce7;
             color: #166534;
         }
+
         .badge.expense {
             background: #fee2e2;
             color: #991b1b;
         }
+
+        .badge.default {
+            background: #eef2ff;
+            color: #4338ca;
+        }
+
         .delete-btn {
-            text-decoration: none;
-            padding: 8px 12px;
-            border-radius: 8px;
             background: #ef4444;
             color: white;
-            font-size: 14px;
+            text-decoration: none;
+            padding: 9px 12px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            white-space: nowrap;
         }
+
+        .delete-btn:hover {
+            opacity: 0.95;
+        }
+
         .empty {
             color: #777;
-            padding: 10px 0;
+            padding: 20px 0;
+            text-align: center;
+            border: 1px dashed #d7dce3;
+            border-radius: 12px;
+            background: #fafbff;
+        }
+
+        .hint-box {
+            margin-top: 16px;
+            padding: 14px;
+            border-radius: 12px;
+            background: #f8fafc;
+            border: 1px solid #e5e7eb;
+            color: #555;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .success-box {
+            display: none;
+            margin-top: 14px;
+            padding: 12px 14px;
+            border-radius: 10px;
+            background: #dcfce7;
+            color: #166534;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        @media (max-width: 960px) {
+            .layout {
+                grid-template-columns: 1fr;
+            }
+
+            .two-col {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
 <body>
+    <%
+        const allCategories = categories || [];
+        const defaultCategories = allCategories.filter(c => Number(c.is_default) === 1);
+        const customCategories = allCategories.filter(c => Number(c.is_default) !== 1);
+    %>
+
     <div class="page">
         <div class="topbar">
             <h1 class="brand"><%= t('app_name') %></h1>
@@ -175,25 +337,57 @@
             <a href="/analytics"><%= t('analytics') %></a>
         </div>
 
-        <div class="card">
-            <h2><%= t('categories') %></h2>
+        <div class="layout">
+            <div class="card">
+                <h2><%= t('add_category') %></h2>
+                <div class="subtitle"><%= t('custom_categories') %></div>
 
-            <div class="category-grid">
-                <div>
-                    <h3><%= t('default_categories') %></h3>
+                <form id="add-category-form">
+                    <div class="form-group">
+                        <label for="category-name"><%= t('category_name') %></label>
+                        <input id="category-name" type="text" placeholder="<%= t('new_category') %>" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="category-type"><%= t('type') %></label>
+                        <select id="category-type" required>
+                            <option value="income"><%= t('income') %></option>
+                            <option value="expense"><%= t('expense') %></option>
+                        </select>
+                    </div>
+
+                    <button type="submit" class="full-btn"><%= t('add_button') %></button>
+                </form>
+
+                <div id="success-box" class="success-box">
+                    <%= t('add_category') %> ✓
+                </div>
+
+                <div class="hint-box">
+                    Здесь можно создать собственные категории для операций. Стандартные категории удалить нельзя, а пользовательские — можно.
+                </div>
+            </div>
+
+            <div class="two-col">
+                <div class="card">
+                    <div class="section-title">
+                        <h3><%= t('default_categories') %></h3>
+                        <span class="count-badge"><%= defaultCategories.length %></span>
+                    </div>
+
                     <div class="category-list">
-                        <% const defaults = (categories || []).filter(c => Number(c.is_default) === 1); %>
-                        <% if (defaults.length === 0) { %>
+                        <% if (defaultCategories.length === 0) { %>
                             <div class="empty"><%= t('no_categories') %></div>
                         <% } else { %>
-                            <% defaults.forEach(function(cat) { %>
+                            <% defaultCategories.forEach(function(cat) { %>
                                 <div class="category-item">
                                     <div>
-                                        <strong><%= cat.name %></strong>
-                                        <div style="margin-top: 6px;">
+                                        <div class="category-name"><%= cat.name %></div>
+                                        <div class="meta-row">
                                             <span class="badge <%= cat.type %>">
                                                 <%= cat.type === 'income' ? t('income') : t('expense') %>
                                             </span>
+                                            <span class="badge default"><%= t('default_categories') %></span>
                                         </div>
                                     </div>
                                 </div>
@@ -202,18 +396,21 @@
                     </div>
                 </div>
 
-                <div>
-                    <h3><%= t('custom_categories') %></h3>
+                <div class="card">
+                    <div class="section-title">
+                        <h3><%= t('custom_categories') %></h3>
+                        <span class="count-badge"><%= customCategories.length %></span>
+                    </div>
+
                     <div class="category-list">
-                        <% const custom = (categories || []).filter(c => Number(c.is_default) !== 1); %>
-                        <% if (custom.length === 0) { %>
+                        <% if (customCategories.length === 0) { %>
                             <div class="empty"><%= t('no_categories') %></div>
                         <% } else { %>
-                            <% custom.forEach(function(cat) { %>
+                            <% customCategories.forEach(function(cat) { %>
                                 <div class="category-item">
                                     <div>
-                                        <strong><%= cat.name %></strong>
-                                        <div style="margin-top: 6px;">
+                                        <div class="category-name"><%= cat.name %></div>
+                                        <div class="meta-row">
                                             <span class="badge <%= cat.type %>">
                                                 <%= cat.type === 'income' ? t('income') : t('expense') %>
                                             </span>
@@ -233,19 +430,69 @@
     </div>
 
     <script>
+        const form = document.getElementById('add-category-form');
+        const successBox = document.getElementById('success-box');
+
+        form?.addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const nameInput = document.getElementById('category-name');
+            const typeInput = document.getElementById('category-type');
+
+            const name = nameInput.value.trim();
+            const type = typeInput.value;
+
+            if (!name) {
+                alert('Введите название категории');
+                return;
+            }
+
+            try {
+                const res = await fetch('/api/categories', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name, type })
+                });
+
+                const data = await res.json().catch(() => ({}));
+
+                if (!res.ok) {
+                    alert(data.error || 'Ошибка добавления категории');
+                    return;
+                }
+
+                nameInput.value = '';
+                successBox.style.display = 'block';
+
+                setTimeout(() => {
+                    location.reload();
+                }, 500);
+            } catch (err) {
+                console.error(err);
+                alert('Ошибка добавления категории');
+            }
+        });
+
         async function deleteCategory(id) {
             const ok = confirm('<%= t("delete") %>?');
             if (!ok) return;
 
-            const res = await fetch('/api/categories/' + id, {
-                method: 'DELETE'
-            });
+            try {
+                const res = await fetch('/api/categories/' + id, {
+                    method: 'DELETE'
+                });
 
-            if (res.ok) {
-                location.reload();
-            } else {
                 const data = await res.json().catch(() => ({}));
-                alert(data.error || 'Ошибка удаления');
+
+                if (!res.ok) {
+                    alert(data.error || 'Ошибка удаления');
+                    return;
+                }
+
+                location.reload();
+            } catch (err) {
+                console.error(err);
+                alert('Ошибка удаления');
             }
         }
     </script>
