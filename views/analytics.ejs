@@ -307,7 +307,7 @@
                         <tbody>
                             <% safeCategoryData.forEach(function(item) { %>
                                 <tr>
-                                    <td><%= item.category %></td>
+                                   <td><%= translateCategory(item.category) %></td>
                                     <td style="color:#16a34a; font-weight:700;">
                                         <%= Number(item.total_income || 0).toLocaleString('ru-RU') %> ₸
                                     </td>
