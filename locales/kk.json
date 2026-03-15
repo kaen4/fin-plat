@@ -62,5 +62,21 @@
   "create_profile": "Жаңа профиль жасау үшін деректерді толтырыңыз.",
   "feature_analytics": "Кіріс пен шығыс бойынша көрнекі талдау",
   "feature_expenses": "Күнделікті операцияларды ыңғайлы есепке алу",
-  "feature_categories": "Дайын және жеке санаттар"
+  "feature_categories": "Дайын және жеке санаттар",
+
+  "category_salary": "Жалақы",
+  "category_freelance": "Фриланс",
+  "category_gifts": "Сыйлықтар",
+  "category_investments": "Инвестициялар",
+  "category_other_income": "Басқа кіріс",
+  "category_products": "Азық-түлік",
+  "category_transport": "Көлік",
+  "category_restaurants": "Мейрамханалар",
+  "category_housing": "Тұрғын үй",
+  "category_entertainment": "Ойын-сауық",
+  "category_health": "Денсаулық",
+  "category_clothes": "Киім",
+  "category_communication": "Байланыс",
+  "category_education": "Білім",
+  "category_other_expense": "Басқа шығыс"
 }
