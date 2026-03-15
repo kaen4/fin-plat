@@ -13,7 +13,7 @@
         }
 
         .page {
-            max-width: 1100px;
+            max-width: 1200px;
             margin: 0 auto;
             padding: 24px;
         }
@@ -102,19 +102,31 @@
             color: #fff;
         }
 
-        .balance-card {
+        .hero {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             padding: 28px;
-            border-radius: 18px;
+            border-radius: 20px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.16);
             margin-bottom: 24px;
         }
 
-        .balance-title {
-            margin: 0 0 10px 0;
-            font-size: 16px;
-            opacity: 0.9;
+        .hero-title {
+            margin: 0 0 6px 0;
+            font-size: 30px;
+            font-weight: 700;
+        }
+
+        .hero-subtitle {
+            margin: 0 0 18px 0;
+            opacity: 0.92;
+            font-size: 15px;
+        }
+
+        .balance-label {
+            font-size: 15px;
+            opacity: 0.92;
+            margin-bottom: 8px;
         }
 
         .balance-value {
@@ -123,17 +135,91 @@
             margin: 0;
         }
 
-        .content-card {
+        .quick-actions {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-top: 22px;
+        }
+
+        .quick-actions a {
+            text-decoration: none;
+            padding: 12px 16px;
+            border-radius: 10px;
+            font-weight: 600;
+        }
+
+        .quick-primary {
+            background: #fff;
+            color: #4338ca;
+        }
+
+        .quick-secondary {
+            background: rgba(255,255,255,0.18);
+            color: #fff;
+            border: 1px solid rgba(255,255,255,0.25);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 18px;
+            margin-bottom: 24px;
+        }
+
+        .stat-card,
+        .card {
             background: #fff;
             border-radius: 16px;
             padding: 22px;
             box-shadow: 0 4px 18px rgba(0,0,0,0.08);
         }
 
-        .content-card h2 {
+        .stat-card h3,
+        .card h2 {
             margin-top: 0;
-            margin-bottom: 18px;
-            font-size: 22px;
+            margin-bottom: 12px;
+        }
+
+        .stat-value {
+            font-size: 28px;
+            font-weight: 700;
+        }
+
+        .stat-value.balance {
+            color: #4f46e5;
+        }
+
+        .stat-value.count {
+            color: #0f172a;
+        }
+
+        .stat-note {
+            color: #666;
+            font-size: 13px;
+            margin-top: 8px;
+        }
+
+        .content-grid {
+            display: grid;
+            grid-template-columns: 1.25fr 0.9fr;
+            gap: 20px;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-bottom: 14px;
+        }
+
+        .card-link {
+            text-decoration: none;
+            color: #4f46e5;
+            font-weight: 700;
+            font-size: 14px;
         }
 
         .operations-list {
@@ -184,35 +270,58 @@
         }
 
         .empty-state {
-            text-align: center;
             padding: 28px 12px;
+            text-align: center;
             color: #777;
+            border: 1px dashed #d7dce3;
+            border-radius: 12px;
+            background: #fafbff;
         }
 
-        .actions {
-            margin-top: 20px;
+        .mini-list {
             display: flex;
+            flex-direction: column;
             gap: 12px;
-            flex-wrap: wrap;
         }
 
-        .actions a {
-            text-decoration: none;
-            padding: 11px 16px;
-            border-radius: 10px;
-            background: #4f46e5;
-            color: white;
-            font-weight: 600;
+        .mini-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 0;
+            border-bottom: 1px solid #eef2f7;
         }
 
-        .actions a.secondary {
-            background: #e5e7eb;
-            color: #222;
+        .mini-item:last-child {
+            border-bottom: none;
+        }
+
+        .mini-title {
+            font-weight: 700;
+        }
+
+        .mini-subtitle {
+            color: #666;
+            font-size: 13px;
+            margin-top: 4px;
+        }
+
+        .mini-value {
+            font-weight: 700;
+            color: #4f46e5;
+            white-space: nowrap;
+        }
+
+        @media (max-width: 960px) {
+            .content-grid {
+                grid-template-columns: 1fr;
+            }
         }
 
         @media (max-width: 700px) {
             .balance-value {
-                font-size: 32px;
+                font-size: 34px;
             }
 
             .operation-item {
@@ -227,6 +336,23 @@
     </style>
 </head>
 <body>
+    <%
+        const formatDate = (value) => {
+            if (!value) return '-';
+            if (typeof value === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(value)) {
+                const [y, m, d] = value.split('-');
+                return `${d}.${m}.${y}`;
+            }
+            const dt = new Date(value);
+            if (Number.isNaN(dt.getTime())) return value;
+            return dt.toLocaleDateString('ru-RU');
+        };
+
+        const safeTransactions = recentTransactions || [];
+        const incomeItems = safeTransactions.filter(item => item.type === 'income');
+        const expenseItems = safeTransactions.filter(item => item.type === 'expense');
+    %>
+
     <div class="page">
         <div class="topbar">
             <h1 class="brand"><%= t('app_name') %></h1>
@@ -247,51 +373,110 @@
         </div>
 
         <div class="nav">
-            <a href="/" class="<%= currentPage === 'dashboard' ? 'active' : '' %>"><%= t('dashboard') %></a>
+            <a href="/" class="active"><%= t('dashboard') %></a>
             <a href="/operations"><%= t('operations') %></a>
-            <a href="/categories"><%= t('category') %></a>
+            <a href="/categories"><%= t('categories') %></a>
             <a href="/analytics"><%= t('analytics') %></a>
         </div>
 
-        <div class="balance-card">
-            <p class="balance-title"><%= t('total_balance') %></p>
-            <p class="balance-value">
-                <%= Number(balance || 0).toLocaleString('ru-RU') %> ₸
-            </p>
+        <div class="hero">
+            <h2 class="hero-title"><%= t('dashboard') %></h2>
+            <p class="hero-subtitle">Добро пожаловать, <strong><%= user %></strong></p>
+
+            <div class="balance-label"><%= t('total_balance') %></div>
+            <p class="balance-value"><%= Number(balance || 0).toLocaleString('ru-RU') %> ₸</p>
+
+            <div class="quick-actions">
+                <a href="/operations" class="quick-primary"><%= t('add_operation') %></a>
+                <a href="/analytics" class="quick-secondary"><%= t('analytics') %></a>
+            </div>
         </div>
 
-        <div class="content-card">
-            <h2><%= t('recent_operations') %></h2>
+        <div class="stats-grid">
+            <div class="stat-card">
+                <h3><%= t('total_balance') %></h3>
+                <div class="stat-value balance"><%= Number(balance || 0).toLocaleString('ru-RU') %> ₸</div>
+                <div class="stat-note">Актуальное состояние по сохранённым операциям</div>
+            </div>
 
-            <% if (!recentTransactions || recentTransactions.length === 0) { %>
-                <div class="empty-state">
-                    <p><%= t('no_operations') %></p>
+            <div class="stat-card">
+                <h3><%= t('recent_operations') %></h3>
+                <div class="stat-value count"><%= safeTransactions.length %></div>
+                <div class="stat-note">Последние записи, показанные на главной</div>
+            </div>
+
+            <div class="stat-card">
+                <h3><%= t('income') %> / <%= t('expense') %></h3>
+                <div class="stat-value count"><%= incomeItems.length %> / <%= expenseItems.length %></div>
+                <div class="stat-note">Соотношение последних доходов и расходов</div>
+            </div>
+        </div>
+
+        <div class="content-grid">
+            <div class="card">
+                <div class="card-header">
+                    <h2><%= t('recent_operations') %></h2>
+                    <a href="/operations" class="card-link"><%= t('view_all') %></a>
                 </div>
-            <% } else { %>
-                <div class="operations-list">
-                    <% recentTransactions.forEach(function(tx) { %>
-                        <div class="operation-item">
-                            <div class="operation-left">
-                                <div class="operation-category">
-                                    <%= tx.type === 'income' ? '💰' : '💸' %> <%= tx.category %>
-                                </div>
-                                <div class="operation-meta">
-                                    <%= tx.description || '-' %> · <%= tx.date %>
-                                </div>
-                            </div>
 
-                            <div class="operation-amount <%= tx.type %>">
-                                <%= tx.type === 'income' ? '+' : '-' %>
-                                <%= Number(tx.amount || 0).toLocaleString('ru-RU') %> ₸
+                <% if (!safeTransactions.length) { %>
+                    <div class="empty-state">
+                        <p><%= t('no_operations') %></p>
+                    </div>
+                <% } else { %>
+                    <div class="operations-list">
+                        <% safeTransactions.forEach(function(tx) { %>
+                            <div class="operation-item">
+                                <div class="operation-left">
+                                    <div class="operation-category">
+                                        <%= tx.type === 'income' ? '💰' : '💸' %> <%= tx.category %>
+                                    </div>
+                                    <div class="operation-meta">
+                                        <%= tx.description || '-' %> · <%= formatDate(tx.date) %>
+                                    </div>
+                                </div>
+
+                                <div class="operation-amount <%= tx.type %>">
+                                    <%= tx.type === 'income' ? '+' : '-' %>
+                                    <%= Number(tx.amount || 0).toLocaleString('ru-RU') %> ₸
+                                </div>
                             </div>
+                        <% }) %>
+                    </div>
+                <% } %>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h2><%= t('summary') %></h2>
+                    <a href="/categories" class="card-link"><%= t('categories') %></a>
+                </div>
+
+                <div class="mini-list">
+                    <div class="mini-item">
+                        <div>
+                            <div class="mini-title"><%= t('operations') %></div>
+                            <div class="mini-subtitle">Управление записями о доходах и расходах</div>
                         </div>
-                    <% }) %>
-                </div>
-            <% } %>
+                        <div class="mini-value">→</div>
+                    </div>
 
-            <div class="actions">
-                <a href="/operations"><%= t('view_all') %></a>
-                <a href="/analytics" class="secondary"><%= t('analytics') %></a>
+                    <div class="mini-item">
+                        <div>
+                            <div class="mini-title"><%= t('categories') %></div>
+                            <div class="mini-subtitle">Добавление и удаление пользовательских категорий</div>
+                        </div>
+                        <div class="mini-value">→</div>
+                    </div>
+
+                    <div class="mini-item">
+                        <div>
+                            <div class="mini-title"><%= t('analytics') %></div>
+                            <div class="mini-subtitle">Сводные графики и таблицы по данным</div>
+                        </div>
+                        <div class="mini-value">→</div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
