@@ -49,5 +49,18 @@
   "expense_by_category": "Expenses by category",
   "summary": "Summary",
   "total_income": "Total income",
-  "total_expense": "Total expense"
+  "total_expense": "Total expense",
+  "username": "Username",
+  "password": "Password",
+  "welcome_back": "Welcome back",
+  "login_subtitle": "Sign in to manage your income, expenses and view analytics.",
+  "enter_account": "Enter your account details to sign in.",
+  "no_account_yet": "Don't have an account yet?",
+  "already_have_account": "Already have an account?",
+  "create_account": "Create an account",
+  "register_subtitle": "Create your profile and start tracking your personal finances in a clean interface.",
+  "create_profile": "Fill in the details to create a new profile.",
+  "feature_analytics": "Clear analytics for income and expenses",
+  "feature_expenses": "Convenient daily transaction tracking",
+  "feature_categories": "Default and custom categories"
 }
