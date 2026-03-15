@@ -62,5 +62,21 @@
   "create_profile": "Fill in the details to create a new profile.",
   "feature_analytics": "Clear analytics for income and expenses",
   "feature_expenses": "Convenient daily transaction tracking",
-  "feature_categories": "Default and custom categories"
+  "feature_categories": "Default and custom categories",
+
+  "category_salary": "Salary",
+  "category_freelance": "Freelance",
+  "category_gifts": "Gifts",
+  "category_investments": "Investments",
+  "category_other_income": "Other income",
+  "category_products": "Groceries",
+  "category_transport": "Transport",
+  "category_restaurants": "Restaurants",
+  "category_housing": "Housing",
+  "category_entertainment": "Entertainment",
+  "category_health": "Health",
+  "category_clothes": "Clothes",
+  "category_communication": "Communication",
+  "category_education": "Education",
+  "category_other_expense": "Other expense"
 }
