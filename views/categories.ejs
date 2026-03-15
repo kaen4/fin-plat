@@ -382,7 +382,7 @@
                             <% defaultCategories.forEach(function(cat) { %>
                                 <div class="category-item">
                                     <div>
-                                        <div class="category-name"><%= cat.name %></div>
+                                        <div class="category-name"><%= translateCategory(cat.name) %></div>
                                         <div class="meta-row">
                                             <span class="badge <%= cat.type %>">
                                                 <%= cat.type === 'income' ? t('income') : t('expense') %>
@@ -409,7 +409,7 @@
                             <% customCategories.forEach(function(cat) { %>
                                 <div class="category-item">
                                     <div>
-                                        <div class="category-name"><%= cat.name %></div>
+                                        <div class="category-name"><%= translateCategory(cat.name) %></div>
                                         <div class="meta-row">
                                             <span class="badge <%= cat.type %>">
                                                 <%= cat.type === 'income' ? t('income') : t('expense') %>
